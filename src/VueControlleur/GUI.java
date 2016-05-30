@@ -10,15 +10,17 @@ import java.util.Observable;
 import java.util.Observer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 /**
@@ -27,8 +29,8 @@ import javafx.stage.Stage;
  */
 public class GUI extends Application implements Observer {
 
-    final Board model= new Board();
-    Text[][] tabText = new Text[8][8];
+    final Board model = new Board();
+    ImageView[][] tabImageView = new ImageView[8][8];
 
     @Override
     public void start(Stage primaryStage) {
@@ -39,7 +41,7 @@ public class GUI extends Application implements Observer {
 
         // permet de placer les diffrents boutons dans une grille
         GridPane gPane = new GridPane();
-
+        GridPane.setMargin(gPane, new Insets(0, 0, 0, 0));
         int column = 0;
         int row = 0;
 
@@ -48,13 +50,13 @@ public class GUI extends Application implements Observer {
             for (int j = 0; j < 8; j++) {
                 final int cj = j;
                 final int ci = i;
-                
-                final Text t = new Text("s");
-                t.setWrappingWidth(30);
-                t.setFont(Font.font("Verdana", 20));
-                t.setTextAlignment(TextAlignment.CENTER);
+                Image image = new Image(getClass().getResource("/images/Square.png").toExternalForm());
+                ImageView imageView = new ImageView(image);
 
-                gPane.add(t, column++, row);
+                imageView.setFitWidth(34);
+
+                imageView.setFitHeight(34);
+                gPane.add(imageView, column++, row);
 
                 if (column > 7) {
                     column = 0;
@@ -62,27 +64,26 @@ public class GUI extends Application implements Observer {
                 }
 
                 // on efface affichage lors du clic
-                t.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
                     @Override
                     public void handle(MouseEvent event) {
-                        if(event.getButton() == MouseButton.SECONDARY)
-                        {
+                        if (event.getButton() == MouseButton.SECONDARY) {
                             model.rightClick(ci, cj);
-                        } 
+                        }
                     }
                 });
-                tabText[i][j] = t;
+
+                tabImageView[i][j] = imageView;
             }
         }
 
-        gPane.setGridLinesVisible(true);
-
         border.setCenter(gPane);
+        gPane.setPadding(new Insets(0, 0, 0, 0));
+        gPane.setBorder(Border.EMPTY);
+        Scene scene = new Scene(border, Color.LIGHTGREY);
 
-        Scene scene = new Scene(border, Color.LIGHTBLUE);
-
-        primaryStage.setTitle("Calc FX");
+        primaryStage.setTitle("Minesweeper");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -100,13 +101,18 @@ public class GUI extends Application implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        for(int i=0; i<8;i++)
-        {
-            for(int j=0; j<8;j++)
-            {
-                if(model.getCase(i, j).isFlag())
-                {
-                    this.tabText[i][j].setText("t");
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (model.getCase(i, j).isFlag()) {
+                    Image image = new Image(getClass().getResource("/images/drapeau.png").toExternalForm());
+                    ImageView imageView = new ImageView(image);
+
+                    imageView.setFitWidth(30);
+
+                    imageView.setFitHeight(30);
+                    imageView.setSmooth(true);
+
+                    this.tabImageView[i][j].setImage(image);
                 }
             }
         }
