@@ -5,14 +5,16 @@
  */
 package VueControlleur;
 
+import Model.Board;
+import java.util.Observable;
+import java.util.Observer;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -23,11 +25,15 @@ import javafx.stage.Stage;
  *
  * @author p1508754
  */
-public class GUI extends Application {
+public class GUI extends Application implements Observer {
+
+    final Board model= new Board();
+    Text[][] tabText = new Text[8][8];
 
     @Override
-    public void start(Stage primaryStage)
-    {
+    public void start(Stage primaryStage) {
+        model.addObserver(this);
+        //model = 
         // gestion du placement (permet de palcer le champ Text affichage en haut, et GridPane gPane au centre)
         BorderPane border = new BorderPane();
 
@@ -39,18 +45,35 @@ public class GUI extends Application {
 
         // création des bouton et placement dans la grille
         for (int i = 0; i < 8; i++) {
-            final Text t = new Text("s");
-            t.setWrappingWidth(30);
-            t.setFont(Font.font("Verdana", 20));
-            t.setTextAlignment(TextAlignment.CENTER);
+            for (int j = 0; j < 8; j++) {
+                final int cj = j;
+                final int ci = i;
+                
+                final Text t = new Text("s");
+                t.setWrappingWidth(30);
+                t.setFont(Font.font("Verdana", 20));
+                t.setTextAlignment(TextAlignment.CENTER);
 
-            gPane.add(t, column++, row);
+                gPane.add(t, column++, row);
 
-            if (column > 8) {
-                column = 0;
-                row++;
+                if (column > 7) {
+                    column = 0;
+                    row++;
+                }
+
+                // on efface affichage lors du clic
+                t.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if(event.getButton() == MouseButton.SECONDARY)
+                        {
+                            model.rightClick(ci, cj);
+                        } 
+                    }
+                });
+                tabText[i][j] = t;
             }
-
         }
 
         gPane.setGridLinesVisible(true);
@@ -69,6 +92,24 @@ public class GUI extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void refreshBoard() {
+
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        for(int i=0; i<8;i++)
+        {
+            for(int j=0; j<8;j++)
+            {
+                if(model.getCase(i, j).isFlag())
+                {
+                    this.tabText[i][j].setText("t");
+                }
+            }
+        }
     }
 
 }
