@@ -53,9 +53,10 @@ public class GUI extends Application implements Observer {
                 Image image = new Image(getClass().getResource("/images/Square.png").toExternalForm());
                 ImageView imageView = new ImageView(image);
 
-                imageView.setFitWidth(34);
+                imageView.setFitWidth(30);
 
-                imageView.setFitHeight(34);
+                imageView.setFitHeight(30);
+                        
                 gPane.add(imageView, column++, row);
 
                 if (column > 7) {
@@ -79,9 +80,9 @@ public class GUI extends Application implements Observer {
         }
 
         border.setCenter(gPane);
-        gPane.setPadding(new Insets(0, 0, 0, 0));
         gPane.setBorder(Border.EMPTY);
-        Scene scene = new Scene(border, Color.LIGHTGREY);
+        gPane.setPadding(new Insets(2,2,2,2));
+        Scene scene = new Scene(border, Color.WHITE);
 
         primaryStage.setTitle("Minesweeper");
         primaryStage.setScene(scene);
