@@ -50,9 +50,12 @@ public class Case {
     
     
     
-    public Case(boolean flag)
+    public Case()
     {
-        this.flag = flag;
+        this.setFlag(false);
+        this.setTrap(false);
+        this.setNbNeighbour(0);
+        this.setVisible(false);
     }
     
     public void setFlag()

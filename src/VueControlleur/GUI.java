@@ -19,7 +19,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -27,61 +26,29 @@ import javafx.stage.Stage;
  *
  * @author p1508754
  */
-public class GUI extends Application implements Observer {
+public class GUI extends Application implements Observer
+{
 
-    final Board model = new Board();
-    ImageView[][] tabImageView = new ImageView[8][8];
+    private Board model;
+    private ImageView[][] tabImageView;
+    private final int SQUARESIZE = 25;
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage)
+    {
+        model = new Board(5, 5, 5);
+        tabImageView = new ImageView[model.getRow()][model.getCol()];
         model.addObserver(this);
-        //model = 
+
         // gestion du placement (permet de palcer le champ Text affichage en haut, et GridPane gPane au centre)
         BorderPane border = new BorderPane();
 
         // permet de placer les diffrents boutons dans une grille
-        GridPane gPane = new GridPane();
-        GridPane.setMargin(gPane, new Insets(0, 0, 0, 0));
-        int column = 0;
-        int row = 0;
-
-        // création des bouton et placement dans la grille
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                final int cj = j;
-                final int ci = i;
-                Image image = new Image(getClass().getResource("/images/Square.png").toExternalForm());
-                ImageView imageView = new ImageView(image);
-
-                imageView.setFitWidth(30);
-
-                imageView.setFitHeight(30);
-                        
-                gPane.add(imageView, column++, row);
-
-                if (column > 7) {
-                    column = 0;
-                    row++;
-                }
-
-                // on efface affichage lors du clic
-                imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-                    @Override
-                    public void handle(MouseEvent event) {
-                        if (event.getButton() == MouseButton.SECONDARY) {
-                            model.rightClick(ci, cj);
-                        }
-                    }
-                });
-
-                tabImageView[i][j] = imageView;
-            }
-        }
+        GridPane gPane = this.buildGrid();
 
         border.setCenter(gPane);
         gPane.setBorder(Border.EMPTY);
-        gPane.setPadding(new Insets(2,2,2,2));
+        gPane.setPadding(new Insets(2, 2, 2, 2));
         Scene scene = new Scene(border, Color.WHITE);
 
         primaryStage.setTitle("Minesweeper");
@@ -92,31 +59,92 @@ public class GUI extends Application implements Observer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         launch(args);
     }
 
-    public void refreshBoard() {
-
-    }
-
     @Override
-    public void update(Observable o, Object arg) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (model.getCase(i, j).isFlag()) {
-                    Image image = new Image(getClass().getResource("/images/drapeau.png").toExternalForm());
-                    ImageView imageView = new ImageView(image);
-
-                    imageView.setFitWidth(30);
-
-                    imageView.setFitHeight(30);
-                    imageView.setSmooth(true);
-
-                    this.tabImageView[i][j].setImage(image);
+    public void update(Observable o, Object arg)
+    {
+        for (int i = 0; i < model.getRow(); i++)
+        {
+            for (int j = 0; j < model.getCol(); j++)
+            {
+                if (model.getCase(i, j).isFlag())
+                {
+                    this.tabImageView[i][j].setImage(this.buildImage("/images/Flag.png"));
+                } 
+                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap())
+                {
+                    this.tabImageView[i][j].setImage(this.buildImage("/images/Bomb.png"));
+                }
+                else
+                {
+                    this.tabImageView[i][j].setImage(this.buildImage("/images/Square.png"));
                 }
             }
         }
+    }
+
+    /**
+     * Method to build the playing grid
+     * @return GridPane
+     */
+    public GridPane buildGrid()
+    {
+        GridPane gPane = new GridPane();
+        int column = 0;
+        int row = 0;
+
+        // création des bouton et placement dans la grille
+        for (int i = 0; i < this.model.getRow(); i++)
+        {
+            for (int j = 0; j < this.model.getCol(); j++)
+            {
+                final int cj = j;
+                final int ci = i;
+                Image image = this.buildImage("/images/Square.png");
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(SQUARESIZE);
+                imageView.setFitHeight(SQUARESIZE);
+                imageView.setSmooth(true);
+                gPane.add(imageView, column++, row);
+                tabImageView[i][j] = imageView;
+
+                //When reaching end of a row
+                if (column > this.model.getCol() - 1) 
+                {
+                    column = 0;
+                    row++;
+                }
+
+                // on efface affichage lors du clic
+                imageView.setOnMouseClicked(new EventHandler<MouseEvent>()
+                {
+
+                    @Override
+                    public void handle(MouseEvent event)
+                    {
+                        if (event.getButton() == MouseButton.SECONDARY)
+                        {
+                            model.rightClick(ci, cj);
+                        } 
+                        else if (event.getButton() == MouseButton.PRIMARY)
+                        {
+                             model.leftClick(ci, cj);
+                        }
+                    }
+                });
+            }
+        }
+        return gPane;
+    }
+
+    private Image buildImage(String imagePath)
+    {
+        Image image = new Image(getClass().getResource(imagePath).toExternalForm());
+        return image;
     }
 
 }

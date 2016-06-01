@@ -6,6 +6,9 @@
 package Model;
 
 import java.util.Observable;
+import java.util.Random;
+import static javax.swing.Spring.height;
+import static javax.swing.Spring.width;
 
 /**
  *
@@ -14,6 +17,9 @@ import java.util.Observable;
 public class Board extends Observable {
 
     private Case[][] board;
+    private int row;
+    private int col;
+    private int nbBomb;
 
     public Case[][] getBoard() {
         return board;
@@ -23,32 +29,92 @@ public class Board extends Observable {
         this.board = board;
     }
 
-    public Board(Case[][] board) {
-        this.board = board;
+    public int getRow()
+    {
+        return row;
     }
 
-    public Board() {
-        this.board = new Case[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                board[i][j] = new Case(false);
+    public void setRow(int lig)
+    {
+        this.row = lig;
+    }
+
+    public int getCol()
+    {
+        return col;
+    }
+
+    public void setCol(int col)
+    {
+        this.col = col;
+    }
+    
+    /**
+     * Constructor
+     * @param row Number of rows in the playing grid
+     * @param col Number of columns in the playing grid
+     * @param bomb Number of bomb to be generated on the grid
+     */
+    public Board(int row, int col, int bomb) {
+        this.board = new Case[row][col];
+        this.setCol(col);
+        this.setRow(row);
+        this.nbBomb = bomb;
+        
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                board[i][j] = new Case();
             }
         }
-
+        generateBomb();
     }
 
-    public void rightClick(int i, int j) 
+    /**
+     * Set a flog on the grid according to the coordinates entered in the arguments
+     */
+    public void rightClick(int row, int col) 
     {
-        this.getCase(i, j).setFlag();
+        if(!this.getCase(row, col).isVisible())
+        {
+            this.getCase(row, col).setFlag();
+            this.update();
+        }
+    }
+    
+    public void leftClick(int row, int col)
+    {
+        this.getCase(row, col).setVisible(true);
         this.update();
     }
+    
+    public void generateBomb()
+    {
+        Random r = new Random();
+		
+        int i_random;
+        int j_random;
+        for (int i=0; i<nbBomb; i++)
+        {
+            do
+            {
+                i_random = r.nextInt(this.getRow());
+                j_random = r.nextInt(this.getCol());
+            } while(board[i_random][j_random].isTrap());
+            System.out.println(i_random + "   " + j_random);
+            board[i_random][j_random].setTrap(true);
+        }
+    }
 
+    /**
+     * 
+     * @return The square according to the coordinates
+     */
     public Case getCase(int i, int j) {
         return this.board[i][j];
     }
 
     public void update() {
-        // notification de la vue, suite à la mise à jour du champ lastValue
+        // Notify the view to update
         setChanged();
         notifyObservers();
     }
