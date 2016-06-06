@@ -94,8 +94,7 @@ public class GUI extends Application implements Observer {
         GridPane gPane = new GridPane();
         int column = 0;
         int row = 0;
-
-        // création des bouton et placement dans la grille
+        
         for (int i = 0; i < this.model.getRow(); i++) {
             for (int j = 0; j < this.model.getCol(); j++) {
                 final int cj = j;
