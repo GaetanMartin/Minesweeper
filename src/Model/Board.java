@@ -18,7 +18,7 @@ public class Board extends Observable
     private int row;
     private int col;
     private final int nbBomb; //Number of bomb
-
+    private boolean lost;
     public Case[][] getBoard()
     {
         return board;
@@ -44,6 +44,15 @@ public class Board extends Observable
     public void setCol(int col) {
         this.col = col;
     }
+
+    public boolean isLost() {
+        return lost;
+    }
+
+    public void setLost(boolean lost) {
+        this.lost = lost;
+    }
+    
 
     /**
      * Constructor
@@ -118,8 +127,12 @@ public class Board extends Observable
     {
         Case c = this.getCase(row, col);
         if (!c.isVisible()) {
-            if (c.isTrap()) {
+            if (c.isTrap()) 
+            {
                 c.discover();
+                this.setLost(true);
+                discoverAll();
+                c.setLost(true);
             } else {
                 if (c.computeNbBomb() > 0) {
                     c.discover();
@@ -130,6 +143,15 @@ public class Board extends Observable
             }
         }
         this.update();
+    }
+    
+    public void discoverAll()
+    {
+        for (int row = 0; row < this.getRow(); row++) {
+            for (int col = 0; col < this.getCol(); col++) {
+                this.getCase(row, col).discover();
+            }
+        }
     }
 
     /**
