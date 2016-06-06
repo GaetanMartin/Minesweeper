@@ -11,18 +11,21 @@ import java.util.Random;
 /**
  * Class Board representing the model side of the game
  */
-public final class Board extends Observable {
+public class Board extends Observable
+{
 
     private Case[][] board;
     private int row;
     private int col;
     private final int nbBomb; //Number of bomb
 
-    public Case[][] getBoard() {
+    public Case[][] getBoard()
+    {
         return board;
     }
 
-    public void setBoard(Case[][] board) {
+    public void setBoard(Case[][] board)
+    {
         this.board = board;
     }
 
@@ -49,7 +52,8 @@ public final class Board extends Observable {
      * @param col Number of columns in the playing grid
      * @param bomb Number of bomb to be generated on the grid
      */
-    public Board(int row, int col, int bomb) {
+    public Board(int row, int col, int bomb)
+    {
         this.board = new Case[row][col];
         this.setCol(col);
         this.setRow(row);
@@ -61,6 +65,39 @@ public final class Board extends Observable {
             }
         }
         generateBomb();
+        addNeignbours();
+    }
+
+    public void addNeignbours()
+    {
+        for (int row = 0; row < this.getRow(); row++) {
+            for (int col = 0; col < this.getCol(); col++) {
+                if (row < this.getRow() - 1) {
+                    board[row][col].addNeighbour(board[row + 1][col]);
+                    if (col < this.getCol() - 1) {
+                        board[row][col].addNeighbour(board[row + 1][col + 1]);
+                    }
+                    if (col > 0) {
+                        board[row][col].addNeighbour(board[row + 1][col - 1]);
+                    }
+                }
+                if (row > 0) {
+                    board[row][col].addNeighbour(board[row - 1][col]);
+                    if (col < this.getCol() - 1) {
+                        board[row][col].addNeighbour(board[row - 1][col + 1]);
+                    }
+                    if (col > 0) {
+                        board[row][col].addNeighbour(board[row - 1][col - 1]);
+                    }
+                }
+                if (col < this.getCol() - 1) {
+                    board[row][col].addNeighbour(board[row][col + 1]);
+                }
+                if (col > 0) {
+                    board[row][col].addNeighbour(board[row][col - 1]);
+                }
+            }
+        }
     }
 
     /**
@@ -77,23 +114,29 @@ public final class Board extends Observable {
         }
     }
 
-    /**
-     * Process the left click on a case : Game lost if a bomb is under this case
-     * Game won if it is the last case undiscovered & not trapped Propagation on
-     * the neighbours
-     *
-     * @param row
-     * @param col
-     */
-    public void leftClick(int row, int col) {
-        this.getCase(row, col).setVisible(true);
+    public void leftClick(int row, int col)
+    {
+        Case c = this.getCase(row, col);
+        if (!c.isVisible()) {
+            if (c.isTrap()) {
+                c.discover();
+            } else {
+                if (c.computeNbBomb() > 0) {
+                    c.discover();
+                } else {
+                    c.discover();
+                    c.discoverNeighbours();
+                }
+            }
+        }
         this.update();
     }
 
     /**
-     * Fill the grids with @nbBomb bombs
+     * Method to generate randomly a list of bombs and put it on the grid
      */
-    public void generateBomb() {
+    public void generateBomb()
+    {
         Random r = new Random();
 
         int i_random;
@@ -115,7 +158,8 @@ public final class Board extends Observable {
      * @param j
      * @return The case according to the coordinates
      */
-    public Case getCase(int i, int j) {
+    public Case getCase(int i, int j)
+    {
         return this.board[i][j];
     }
 

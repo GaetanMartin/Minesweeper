@@ -26,14 +26,25 @@ public class ImageRefresher implements Runnable {
 
     @Override
     public void run() {
-        for (int i = 0; i < model.getRow(); i++) {
-            for (int j = 0; j < model.getCol(); j++) {
-                if (model.getCase(i, j).isFlag()) {
-                    images[i][j].setImage(this.buildImage("/images/Flag.png"));
-                } else if (model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap()) {
-                    images[i][j].setImage(this.buildImage("/images/Bomb.png"));
-                } else {
-                    images[i][j].setImage(this.buildImage("/images/Square.png"));
+        
+        for (int i = 0; i < model.getRow(); i++)
+        {
+            for (int j = 0; j < model.getCol(); j++)
+            {
+                
+                ImageView caseImage =  this.images[i][j];
+                if (model.getCase(i, j).isFlag())
+                {
+                    caseImage.setImage(this.buildImage("/images/Flag.png"));
+                } 
+                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap())
+                {
+                    caseImage.setImage(this.buildImage("/images/Bomb.png"));
+                }
+                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).getNbBomb() != 0)
+                {
+                    int nbBombs = model.getCase(i, j).getNbBomb();
+                    caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
                 }
             }
         }

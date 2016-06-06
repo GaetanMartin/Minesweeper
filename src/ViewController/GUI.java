@@ -1,7 +1,7 @@
 /*
- * Polytech Lyon - 2016
- * Jensen JOYMANGUL & Gaetan MARTIN
- * Projet Informatique 3A - Creation d'un demineur MVC
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package ViewController;
 
@@ -26,10 +26,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
- * Class GUI used as ViewController for our application Display the GUI & manage
- * the actions of the user processing the model
+ *
+ * @author p1508754
  */
-public class GUI extends Application implements Observer {
+
+//POur aller plus loin exécuter le model dqns les thread à l'aide de "ExecutionService"
+public class GUI extends Application implements Observer
+{
 
     private Board model;
     private ImageView[][] tabImageView;
@@ -48,8 +51,9 @@ public class GUI extends Application implements Observer {
     private ExecutorService executor = Executors.newFixedThreadPool(NB_THREAD_MAX);
 
     @Override
-    public void start(Stage primaryStage) {
-        model = new Board(5, 5, 5);
+    public void start(Stage primaryStage)
+    {
+        model = new Board(10, 10, 5);
         tabImageView = new ImageView[model.getRow()][model.getCol()];
         model.addObserver(this);
         imageRefresher = new ImageRefresher(tabImageView, model);
@@ -73,28 +77,32 @@ public class GUI extends Application implements Observer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         launch(args);
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        Platform.runLater(new ImageRefresher(this.tabImageView, this.model));
+    public void update(Observable o, Object arg)
+    {
+        Platform.runLater(imageRefresher);
     }
 
     /**
      * Method to build the playing grid
-     *
      * @return GridPane
      */
-    public GridPane buildGrid() {
+    public GridPane buildGrid()
+    {
         GridPane gPane = new GridPane();
         int column = 0;
         int row = 0;
 
-        // Creating & setting the imageviews on the grid
-        for (int i = 0; i < this.model.getRow(); i++) {
-            for (int j = 0; j < this.model.getCol(); j++) {
+        // création des bouton et placement dans la grille
+        for (int i = 0; i < this.model.getRow(); i++)
+        {
+            for (int j = 0; j < this.model.getCol(); j++)
+            {
                 final int cj = j;
                 final int ci = i;
                 Image image = imageRefresher.buildImage("/images/Square.png");
@@ -106,7 +114,8 @@ public class GUI extends Application implements Observer {
                 tabImageView[i][j] = imageView;
 
                 //When reaching end of a row
-                if (column > this.model.getCol() - 1) {
+                if (column > this.model.getCol() - 1) 
+                {
                     column = 0;
                     row++;
                 }
