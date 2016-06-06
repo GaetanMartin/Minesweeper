@@ -1,15 +1,13 @@
 /*
- * Polytech Lyon - 2016
- * Jensen JOYMANGUL & Gaetan MARTIN
- * Projet Informatique 3A - Creation d'un demineur MVC
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package ViewController;
 
 import Model.Board;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,29 +23,22 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
- * Class GUI used as ViewController for our application Display the GUI & manage
- * the actions of the user processing the model
+ *
+ * @author p1508754
  */
-public class GUI extends Application implements Observer {
+
+//POur aller plus loin exécuter le model dqns les thread à l'aide de "ExecutionService"
+public class GUI extends Application implements Observer
+{
 
     private Board model;
     private ImageView[][] tabImageView;
-    private final int SQUARESIZE = 20;
-
-    /**
-     * Max number of threads for the ExecutorService Used to process the model
-     */
-    private final int NB_THREAD_MAX = 5;
-
-    /**
-     * Executor : Provides @NB_THREAD_MAX threads Stores in queue the tasks if
-     * more than @NB_THREAD_MAX threads are needed
-     */
-    private ExecutorService executor = Executors.newFixedThreadPool(NB_THREAD_MAX);
+    private final int SQUARESIZE = 30;
 
     @Override
-    public void start(Stage primaryStage) {
-        model = new Board(5, 5, 5);
+    public void start(Stage primaryStage)
+    {
+        model = new Board(10, 10, 5);
         tabImageView = new ImageView[model.getRow()][model.getCol()];
         model.addObserver(this);
 
@@ -70,20 +61,32 @@ public class GUI extends Application implements Observer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         launch(args);
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        for (int i = 0; i < model.getRow(); i++) {
-            for (int j = 0; j < model.getCol(); j++) {
-                if (model.getCase(i, j).isFlag()) {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Flag.png"));
-                } else if (model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap()) {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Bomb.png"));
-                } else {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Square.png"));
+    public void update(Observable o, Object arg)
+    {
+        for (int i = 0; i < model.getRow(); i++)
+        {
+            for (int j = 0; j < model.getCol(); j++)
+            {
+                
+                ImageView caseImage =  this.tabImageView[i][j];
+                if (model.getCase(i, j).isFlag())
+                {
+                    caseImage.setImage(this.buildImage("/images/Flag.png"));
+                } 
+                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap())
+                {
+                    caseImage.setImage(this.buildImage("/images/Bomb.png"));
+                }
+                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).getNbBomb() != 0)
+                {
+                    int nbBombs = model.getCase(i, j).getNbBomb();
+                    caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
                 }
             }
         }
@@ -91,17 +94,19 @@ public class GUI extends Application implements Observer {
 
     /**
      * Method to build the playing grid
-     *
      * @return GridPane
      */
-    public GridPane buildGrid() {
+    public GridPane buildGrid()
+    {
         GridPane gPane = new GridPane();
         int column = 0;
         int row = 0;
 
-        // Creating & setting the imageviews on the grid
-        for (int i = 0; i < this.model.getRow(); i++) {
-            for (int j = 0; j < this.model.getCol(); j++) {
+        // création des bouton et placement dans la grille
+        for (int i = 0; i < this.model.getRow(); i++)
+        {
+            for (int j = 0; j < this.model.getCol(); j++)
+            {
                 final int cj = j;
                 final int ci = i;
                 Image image = this.buildImage("/images/Square.png");
@@ -113,19 +118,26 @@ public class GUI extends Application implements Observer {
                 tabImageView[i][j] = imageView;
 
                 //When reaching end of a row
-                if (column > this.model.getCol() - 1) {
+                if (column > this.model.getCol() - 1) 
+                {
                     column = 0;
                     row++;
                 }
-                
-                imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+                // on efface affichage lors du clic
+                imageView.setOnMouseClicked(new EventHandler<MouseEvent>()
+                {
 
                     @Override
-                    public void handle(MouseEvent event) {
-                        if (event.getButton() == MouseButton.SECONDARY) {
+                    public void handle(MouseEvent event)
+                    {
+                        if (event.getButton() == MouseButton.SECONDARY)
+                        {
                             model.rightClick(ci, cj);
-                        } else if (event.getButton() == MouseButton.PRIMARY) {
-                            model.leftClick(ci, cj);
+                        } 
+                        else if (event.getButton() == MouseButton.PRIMARY)
+                        {
+                             model.leftClick(ci, cj);
                         }
                     }
                 });
@@ -134,13 +146,8 @@ public class GUI extends Application implements Observer {
         return gPane;
     }
 
-    /**
-     * Get an image form its path
-     *
-     * @param imagePath
-     * @return Image, the image desired
-     */
-    private Image buildImage(String imagePath) {
+    private Image buildImage(String imagePath)
+    {
         Image image = new Image(getClass().getResource(imagePath).toExternalForm());
         return image;
     }
