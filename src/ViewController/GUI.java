@@ -51,6 +51,7 @@ public class GUI extends Application implements Observer {
             });
 
     @Override
+
     public void start(Stage primaryStage)
     {
         model = new Board(3, 3, 2);
