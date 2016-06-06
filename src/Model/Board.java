@@ -19,7 +19,7 @@ public class Board extends Observable {
     private Case[][] board;
     private int row;
     private int col;
-    private int nbBomb;
+    private int nbBomb; //Number of bomb
 
     public Case[][] getBoard() {
         return board;

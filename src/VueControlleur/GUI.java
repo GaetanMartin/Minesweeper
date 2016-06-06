@@ -31,7 +31,7 @@ public class GUI extends Application implements Observer
 
     private Board model;
     private ImageView[][] tabImageView;
-    private final int SQUARESIZE = 25;
+    private final int SQUARESIZE = 20;
 
     @Override
     public void start(Stage primaryStage)

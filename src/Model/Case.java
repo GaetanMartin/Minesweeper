@@ -55,6 +55,7 @@ public class Case {
         this.setFlag(false);
         this.setTrap(false);
         this.setNbNeighbour(0);
+        
         this.setVisible(false);
     }
     
