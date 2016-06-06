@@ -7,8 +7,6 @@ package Model;
 
 import java.util.Observable;
 import java.util.Random;
-import static javax.swing.Spring.height;
-import static javax.swing.Spring.width;
 
 /**
  *
@@ -67,6 +65,49 @@ public class Board extends Observable {
             }
         }
         generateBomb();
+        addNeignbours();
+    }
+    
+ public void addNeignbours()
+    {
+        for (int row = 0; row < this.getRow(); row++)
+        {
+            for (int col = 0; col < this.getCol(); col++)
+            {
+                if (row < this.getRow() - 1)
+                {
+                    board[row][col].addNeighbour(board[row + 1][col]);
+                    if (col < this.getCol() - 1)
+                    {
+                        board[row][col].addNeighbour(board[row + 1][col + 1]);
+                    }
+                    if (col > 0)
+                    {
+                        board[row][col].addNeighbour(board[row + 1][col - 1]);
+                    }
+                }
+                if (row > 0)
+                {
+                    board[row][col].addNeighbour(board[row - 1][col]);
+                    if (col < this.getCol() - 1)
+                    {
+                        board[row][col].addNeighbour(board[row - 1][col + 1]);
+                    }
+                    if (col > 0)
+                    {
+                        board[row][col].addNeighbour(board[row - 1][col - 1]);
+                    }
+                }
+                if (col < this.getCol() - 1)
+                {
+                    board[row][col].addNeighbour(board[row][col + 1]);
+                }
+                if (col > 0)
+                {
+                    board[row][col].addNeighbour(board[row][col - 1]);
+                }
+            }
+        }
     }
 
     /**
@@ -83,10 +124,14 @@ public class Board extends Observable {
     
     public void leftClick(int row, int col)
     {
-        this.getCase(row, col).setVisible(true);
+        this.getCase(row, col).discover();
         this.update();
     }
     
+    
+    /**
+     * Method to generate randomly a list of bombs and put it on the grid
+     */
     public void generateBomb()
     {
         Random r = new Random();

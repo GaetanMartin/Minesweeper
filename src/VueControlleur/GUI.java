@@ -26,12 +26,14 @@ import javafx.stage.Stage;
  *
  * @author p1508754
  */
+
+//POur aller plus loin exécuter le model dqns les thread à l'aide de "ExecutionService"
 public class GUI extends Application implements Observer
 {
 
     private Board model;
     private ImageView[][] tabImageView;
-    private final int SQUARESIZE = 20;
+    private final int SQUARESIZE = 25;
 
     @Override
     public void start(Stage primaryStage)
@@ -71,13 +73,20 @@ public class GUI extends Application implements Observer
         {
             for (int j = 0; j < model.getCol(); j++)
             {
+                ImageView caseImage =  this.tabImageView[i][j];
                 if (model.getCase(i, j).isFlag())
                 {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Flag.png"));
+                    caseImage.setImage(this.buildImage("/images/Flag.png"));
                 } 
                 else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap())
                 {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Bomb.png"));
+                    caseImage.setImage(this.buildImage("/images/Bomb.png"));
+                }
+                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).getNbBomb() != 0)
+                {
+                    int nbBonbs = model.getCase(i, j).getNbBomb();
+                    caseImage.setImage(this.buildImage("/images/Square" + nbBonbs + ".png"));
+                           
                 }
                 else
                 {
