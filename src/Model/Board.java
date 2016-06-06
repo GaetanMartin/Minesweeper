@@ -8,13 +8,10 @@ package Model;
 import java.util.Observable;
 import java.util.Random;
 
-
-
 /**
  * Class Board representing the model side of the game
  */
-public class Board extends Observable
-{
+public class Board extends Observable {
 
     private Case[][] board;
     private int row;
@@ -23,14 +20,12 @@ public class Board extends Observable
     private boolean lost;
     private boolean win;
     private int nbFlag;
-    
-    public Case[][] getBoard()
-    {
+
+    public Case[][] getBoard() {
         return board;
     }
 
-    public void setBoard(Case[][] board)
-    {
+    public void setBoard(Case[][] board) {
         this.board = board;
     }
 
@@ -73,9 +68,6 @@ public class Board extends Observable
     public void setNbFlag(int nbFlag) {
         this.nbFlag = nbFlag;
     }
-    
-    
-    
 
     /**
      * Constructor
@@ -84,8 +76,7 @@ public class Board extends Observable
      * @param col Number of columns in the playing grid
      * @param bomb Number of bomb to be generated on the grid
      */
-    public Board(int row, int col, int bomb)
-    {
+    public Board(int row, int col, int bomb) {
         this.board = new Case[row][col];
         this.setCol(col);
         this.setRow(row);
@@ -102,8 +93,7 @@ public class Board extends Observable
         addNeignbours();
     }
 
-    public void addNeignbours()
-    {
+    public void addNeignbours() {
         for (int row = 0; row < this.getRow(); row++) {
             for (int col = 0; col < this.getCol(); col++) {
                 if (row < this.getRow() - 1) {
@@ -142,62 +132,132 @@ public class Board extends Observable
      * @param col
      */
     public void rightClick(int row, int col) {
-        if (!this.getCase(row, col).isVisible()) {
-            this.getCase(row, col).setFlag();
-            this.nbFlag ++;
-            if (this.nbAllUnDiscovered() == this.nbBomb)
-            {
-                    this.setWin(true);
-            }
-            
-            this.update();
-        }
-    }
 
-    public void leftClick(int row, int col)
-    {
-        Case c = this.getCase(row, col);
-        if (!c.isVisible()) {
-            if (c.isTrap()) 
-            {
-                c.discover();
-                this.setLost(true);
-                discoverAll();
-                c.setLost(true);
-            } else {
-                if (c.computeNbBomb() > 0) {
-                    c.discover();
-                } else {
-                    c.discover();
-                    c.discoverNeighbours();
-                }
-                if (this.nbAllUnDiscovered() == this.nbBomb)
-                {
-                        this.setWin(true);
-                }
-            }
+        if (gameFinished()) {
+            return; // Do Nothing
         }
+        Case c = this.getCase(row, col);
+
+        switch (c.getState()) {
+            case FLAGGED:
+                // Remove flag
+                // TODO Question Mark
+                c.setFlag(false);
+                this.nbFlag--;
+                break;
+            case UNDISCOVERED:
+                c.setFlag(true);
+                this.nbFlag++;
+                break;
+            case TRAPPED:
+                c.setFlag(true);
+                this.nbFlag++;
+                break;
+            default:
+                return;
+        }
+        if (gameWon()) {
+            this.setWin(true);
+            this.manageWin();
+        }
+        System.out.println(nbFlag);
         this.update();
     }
-    
-    public void discoverAll()
-    {
+
+    public void leftClick(int row, int col) {
+
+        Case c = this.getCase(row, col);
+
+        switch (c.getState()) {
+            case DISCOVERED:
+                return; // Do Nothing
+            case EMPTY:
+                return; // Do Nothing
+            case TRAPPED:
+                setLost(true);
+                c.setState(CaseState.TRIGGERED);
+                this.manageDefeat();
+                break;
+            case UNDISCOVERED:
+                c.discover();
+                if (!(c.computeNbBomb() > 0)) {
+                    c.discoverNeighbours();
+                }
+                if (this.gameWon()) {
+                    this.setWin(true);
+                    manageWin();
+                }
+                break;
+            default:
+                break;
+        }
+
+        this.update();
+    }
+
+    /**
+     * Game won if all bombs are flagged or if every case undiscovered remaining
+     * are bombs
+     *
+     * @return true if the game is won, false if not yet
+     */
+    private boolean gameWon() {
+        int nbUndiscovered = this.nbAllUndiscovered();
+        return (nbUndiscovered == this.nbBomb
+                || (nbBombsFlagged() == this.nbBomb && this.nbFlag == this.nbBomb)); // Maybe remove this
+    }
+
+    /**
+     * Return the number of bombs flagged
+     *
+     * @return the number of bombs flagged
+     */
+    private int nbBombsFlagged() {
+        int nb = 0;
+        for (int row = 0; row < this.getRow(); row++) {
+            for (int col = 0; col < this.getCol(); col++) {
+                Case c = this.getCase(row, col);
+                if (c.isTrap() && c.isFlag()) {
+                    nb++;
+                }
+            }
+        }
+        return nb;
+    }
+
+    public boolean gameFinished() {
+        return (this.isWin() || this.isLost());
+    }
+
+    private void manageDefeat() {
+        if (!this.isLost() || this.isWin()) {
+            return;
+        }
+        discoverAll();
+    }
+
+    private void manageWin() {
+        if (!this.isWin() || this.isLost()) {
+            return;
+        }
+
+        this.discoverAll();
+    }
+
+    public void discoverAll() {
         for (int row = 0; row < this.getRow(); row++) {
             for (int col = 0; col < this.getCol(); col++) {
                 this.getCase(row, col).discover();
             }
         }
     }
-    
-    
-    public int nbAllUnDiscovered()
-    {
+
+    public int nbAllUndiscovered() {
         int counter = 0;
         for (int row = 0; row < this.getRow(); row++) {
             for (int col = 0; col < this.getCol(); col++) {
-                if(this.getCase(row, col).isFlag())
-                {
-                    counter ++;
+                if (!this.getCase(row, col).isVisible()) {
+                    counter++;
                 }
             }
         }
@@ -207,8 +267,7 @@ public class Board extends Observable
     /**
      * Method to generate randomly a list of bombs and put it on the grid
      */
-    public void generateBomb()
-    {
+    public void generateBomb() {
         Random r = new Random();
 
         int i_random;
@@ -230,8 +289,7 @@ public class Board extends Observable
      * @param j
      * @return The case according to the coordinates
      */
-    public Case getCase(int i, int j)
-    {
+    public Case getCase(int i, int j) {
         return this.board[i][j];
     }
 

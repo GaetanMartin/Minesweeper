@@ -52,8 +52,7 @@ public class GUI extends Application implements Observer {
 
     @Override
 
-    public void start(Stage primaryStage)
-    {
+    public void start(Stage primaryStage) {
         model = new Board(3, 3, 2);
         tabImageView = new ImageView[model.getRow()][model.getCol()];
         model.addObserver(this);
@@ -96,7 +95,7 @@ public class GUI extends Application implements Observer {
         GridPane gPane = new GridPane();
         int column = 0;
         int row = 0;
-        
+
         for (int i = 0; i < this.model.getRow(); i++) {
             for (int j = 0; j < this.model.getCol(); j++) {
                 final int cj = j;
@@ -116,6 +115,10 @@ public class GUI extends Application implements Observer {
                 }
 
                 imageView.setOnMouseClicked((MouseEvent event) -> {
+                    if (model.gameFinished()) {
+                        System.out.println("Game Finished ! ");
+                        return;
+                    }
                     if (event.getButton() == MouseButton.SECONDARY) {
                         executor.execute(() -> {
                             model.rightClick(ci, cj);

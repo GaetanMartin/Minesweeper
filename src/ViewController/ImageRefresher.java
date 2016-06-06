@@ -25,7 +25,7 @@ public class ImageRefresher implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void run() {        
         if(model.isWin())
         {
             System.out.println("WIIIIIIIIIIINNNNNNNNNNN");
@@ -37,32 +37,30 @@ public class ImageRefresher implements Runnable {
         {
             for (int j = 0; j < model.getCol(); j++)
             {
-                
                 ImageView caseImage =  this.images[i][j];
-                if (model.getCase(i, j).isFlag())
+                
+                switch(model.getCase(i, j).getState())
                 {
-                    caseImage.setImage(this.buildImage("/images/Flag.png"));
-                }
-                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isLost())
-                {
-                    caseImage.setImage(this.buildImage("/images/Mine.png"));
-                }
-                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap())
-                {
-                    caseImage.setImage(this.buildImage("/images/Bomb.png"));
-                }
-                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).getNbBomb() != 0)
-                {
-                    int nbBombs = model.getCase(i, j).getNbBomb();
-                    caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
-                }
-                else if(model.getCase(i, j).isVisible())
-                {
-                    caseImage.setImage(this.buildImage("/images/EmptySquare.png"));
-                }
-                else
-                {
-                    caseImage.setImage(this.buildImage("/images/Square.png"));
+                    case FLAGGED :
+                        caseImage.setImage(this.buildImage("/images/Flag.png")); 
+                        break;
+                    case DISCOVERED :
+                        int nbBombs = model.getCase(i, j).getNbBomb();
+                        caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
+                        break;
+                    case EMPTY : 
+                        caseImage.setImage(this.buildImage("/images/EmptySquare.png"));
+                        break;
+                    case TRIGGERED : 
+                        caseImage.setImage(this.buildImage("/images/Mine.png"));
+                        break;
+                    case TRAPPED : 
+                        if (model.gameFinished()) // Display only if the game is finished
+                            caseImage.setImage(this.buildImage("/images/Bomb.png"));
+                        break;
+                    default :
+                        caseImage.setImage(this.buildImage("/images/Square.png"));
+                        break;
                 }
             }
         }

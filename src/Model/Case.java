@@ -19,8 +19,8 @@ public class Case
     private boolean trap;
     private boolean visible;
     private LinkedList<Case> neighbours;
-    private boolean lost; //Case that causes the player to lose
     private int nbBomb; //Number of bonbs neighbour to current case
+    private CaseState state;
 
     public boolean isFlag()
     {
@@ -30,6 +30,7 @@ public class Case
     public void setFlag(boolean flag)
     {
         this.flag = flag;
+        this.setState(flag ? CaseState.FLAGGED : CaseState.UNDISCOVERED);
     }
 
     public boolean isTrap()
@@ -40,6 +41,7 @@ public class Case
     public void setTrap(boolean trap)
     {
         this.trap = trap;
+        this.setState(CaseState.TRAPPED);
     }
 
     public boolean isVisible()
@@ -50,6 +52,7 @@ public class Case
     public void setVisible(boolean visible)
     {
         this.visible = visible;
+        this.setState();
     }
 
     public LinkedList getNeighbours()
@@ -72,30 +75,49 @@ public class Case
         return nbBomb;
     }
 
-    public boolean isLost() {
-        return lost;
-    }
-
-    public void setLost(boolean lostCase) {
-        this.lost = lostCase;
-    }
-
     public Case()
     {
         this.setFlag(false);
         this.setTrap(false);
         this.neighbours = new LinkedList<Case>();
         this.setVisible(false);
-        this.setLost(false);
+        this.setState();
     }
 
     public void setFlag()
     {
-        if (this.flag) {
-            flag = false;
-        } else {
-            flag = true;
-        }
+        this.setState((this.flag = ! this.flag) ? CaseState.FLAGGED : CaseState.UNDISCOVERED);
+        
+    }
+    
+    /**
+     * @return the state
+     */
+    public CaseState getState() {
+        return state;
+    }
+
+    /**
+     * @param state the state to set
+     */
+    public void setState(CaseState state) {
+        this.state = state;
+    }
+    
+    public void setState()
+    {
+        if (this.state == CaseState.TRIGGERED) return;
+        
+        if (flag)
+            setState(CaseState.FLAGGED);
+        else if (! isVisible())
+            setState(CaseState.UNDISCOVERED);
+        else if (isTrap() && isVisible())
+            setState(CaseState.TRAPPED);
+        else if (isVisible() && nbBomb == 0)
+            setState(CaseState.EMPTY);
+        else
+            setState(CaseState.DISCOVERED);
     }
 
     public void discoverNeighbours()
@@ -120,8 +142,9 @@ public class Case
     {
         if (!isVisible()) {
             this.setVisible(true);
-            this.computeNbBomb();
+            nbBomb = computeNbBomb();
         }
+        this.setState();
     }
 
     public int computeNbBomb()
