@@ -36,7 +36,11 @@ public class ImageRefresher implements Runnable {
                 if (model.getCase(i, j).isFlag())
                 {
                     caseImage.setImage(this.buildImage("/images/Flag.png"));
-                } 
+                }
+                else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isLost())
+                {
+                    caseImage.setImage(this.buildImage("/images/Mine.png"));
+                }
                 else if(model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap())
                 {
                     caseImage.setImage(this.buildImage("/images/Bomb.png"));
@@ -45,6 +49,14 @@ public class ImageRefresher implements Runnable {
                 {
                     int nbBombs = model.getCase(i, j).getNbBomb();
                     caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
+                }
+                else if(model.getCase(i, j).isVisible())
+                {
+                    caseImage.setImage(this.buildImage("/images/EmptySquare.png"));
+                }
+                else
+                {
+                    caseImage.setImage(this.buildImage("/images/Square.png"));
                 }
             }
         }

@@ -5,7 +5,7 @@
  */
 package Model;
 
-import java.awt.List;
+
 import java.util.LinkedList;
 
 /**
@@ -19,6 +19,7 @@ public class Case
     private boolean trap;
     private boolean visible;
     private LinkedList<Case> neighbours;
+    private boolean lost; //Case that causes the player to lose
     private int nbBomb; //Number of bonbs neighbour to current case
 
     public boolean isFlag()
@@ -71,12 +72,21 @@ public class Case
         return nbBomb;
     }
 
+    public boolean isLost() {
+        return lost;
+    }
+
+    public void setLost(boolean lostCase) {
+        this.lost = lostCase;
+    }
+
     public Case()
     {
         this.setFlag(false);
         this.setTrap(false);
         this.neighbours = new LinkedList<Case>();
         this.setVisible(false);
+        this.setLost(false);
     }
 
     public void setFlag()
