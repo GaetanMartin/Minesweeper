@@ -1,16 +1,16 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Polytech Lyon - 2016
+ * Jensen JOYMANGUL & Gaetan MARTIN
+ * Projet Informatique 3A - Creation d'un demineur MVC
  */
-
 package Model;
 
 /**
- *
- * @author p1508754
+ * Class case representing a case in the model Can be a trap or not, displayed
+ * or not yet, or set as flag
  */
-public class Case {
+public final class Case {
+
     private boolean flag;
     private int nbNeighbour;
     private boolean trap;
@@ -47,23 +47,15 @@ public class Case {
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
-    
-    
-    
-    public Case()
-    {
+
+    public Case() {
         this.setFlag(false);
         this.setTrap(false);
         this.setNbNeighbour(0);
-        
         this.setVisible(false);
     }
-    
-    public void setFlag()
-    {
-        if(this.flag)
-            flag = false;
-        else
-            flag = true;
+
+    public void setFlag() {
+        this.flag = !flag;
     }
 }

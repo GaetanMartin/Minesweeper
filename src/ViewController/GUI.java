@@ -11,6 +11,7 @@ import java.util.Observer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -33,6 +34,7 @@ public class GUI extends Application implements Observer {
     private Board model;
     private ImageView[][] tabImageView;
     private final int SQUARESIZE = 20;
+    private ImageRefresher imageRefresher;
 
     /**
      * Max number of threads for the ExecutorService Used to process the model
@@ -50,6 +52,7 @@ public class GUI extends Application implements Observer {
         model = new Board(5, 5, 5);
         tabImageView = new ImageView[model.getRow()][model.getCol()];
         model.addObserver(this);
+        imageRefresher = new ImageRefresher(tabImageView, model);
 
         // gestion du placement (permet de palcer le champ Text affichage en haut, et GridPane gPane au centre)
         BorderPane border = new BorderPane();
@@ -76,17 +79,7 @@ public class GUI extends Application implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        for (int i = 0; i < model.getRow(); i++) {
-            for (int j = 0; j < model.getCol(); j++) {
-                if (model.getCase(i, j).isFlag()) {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Flag.png"));
-                } else if (model.getCase(i, j).isVisible() && model.getCase(i, j).isTrap()) {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Bomb.png"));
-                } else {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Square.png"));
-                }
-            }
-        }
+        Platform.runLater(new ImageRefresher(this.tabImageView, this.model));
     }
 
     /**
@@ -104,7 +97,7 @@ public class GUI extends Application implements Observer {
             for (int j = 0; j < this.model.getCol(); j++) {
                 final int cj = j;
                 final int ci = i;
-                Image image = this.buildImage("/images/Square.png");
+                Image image = imageRefresher.buildImage("/images/Square.png");
                 ImageView imageView = new ImageView(image);
                 imageView.setFitWidth(SQUARESIZE);
                 imageView.setFitHeight(SQUARESIZE);
@@ -117,15 +110,19 @@ public class GUI extends Application implements Observer {
                     column = 0;
                     row++;
                 }
-                
+
                 imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
                     @Override
                     public void handle(MouseEvent event) {
                         if (event.getButton() == MouseButton.SECONDARY) {
-                            model.rightClick(ci, cj);
+                            executor.execute(() -> {
+                                model.rightClick(ci, cj);
+                            });
                         } else if (event.getButton() == MouseButton.PRIMARY) {
-                            model.leftClick(ci, cj);
+                            executor.execute(() -> {
+                                model.leftClick(ci, cj);
+                            });
                         }
                     }
                 });
@@ -133,16 +130,4 @@ public class GUI extends Application implements Observer {
         }
         return gPane;
     }
-
-    /**
-     * Get an image form its path
-     *
-     * @param imagePath
-     * @return Image, the image desired
-     */
-    private Image buildImage(String imagePath) {
-        Image image = new Image(getClass().getResource(imagePath).toExternalForm());
-        return image;
-    }
-
 }

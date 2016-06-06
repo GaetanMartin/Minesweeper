@@ -1,0 +1,9 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}Polytech Lyon - 2016
+${licensePrefix}Jensen JOYMANGUL & Gaetan MARTIN
+${licensePrefix}Projet Informatique 3A - Creation d'un demineur MVC
+<#if licenseLast??>
+${licenseLast}
+</#if>
