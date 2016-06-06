@@ -88,16 +88,33 @@ public class Case
         }
     }
 
+    public void discoverNeighbours()
+    {
+        if (!isTrap()) 
+        {
+            for (Case c : this.neighbours) 
+            {
+                if (!c.isVisible()&& !c.flag)
+                {
+                    c.discover();
+                    if (c.nbBomb == 0) 
+                    {
+                        c.discoverNeighbours();
+                    }
+                }
+            }
+        }
+    }
+
     public void discover()
     {
-        if (!isVisible()) 
-        {
+        if (!isVisible()) {
             this.setVisible(true);
             this.computeNbBomb();
         }
     }
 
-    public void computeNbBomb()
+    public int computeNbBomb()
     {
         nbBomb = 0;
         for (Case c : this.neighbours) {
@@ -105,5 +122,6 @@ public class Case
                 nbBomb++;
             }
         }
+        return nbBomb;
     }
 }

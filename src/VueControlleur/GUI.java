@@ -33,12 +33,12 @@ public class GUI extends Application implements Observer
 
     private Board model;
     private ImageView[][] tabImageView;
-    private final int SQUARESIZE = 25;
+    private final int SQUARESIZE = 30;
 
     @Override
     public void start(Stage primaryStage)
     {
-        model = new Board(5, 5, 5);
+        model = new Board(10, 10, 5);
         tabImageView = new ImageView[model.getRow()][model.getCol()];
         model.addObserver(this);
 
@@ -73,6 +73,7 @@ public class GUI extends Application implements Observer
         {
             for (int j = 0; j < model.getCol(); j++)
             {
+                
                 ImageView caseImage =  this.tabImageView[i][j];
                 if (model.getCase(i, j).isFlag())
                 {
@@ -84,13 +85,8 @@ public class GUI extends Application implements Observer
                 }
                 else if(model.getCase(i, j).isVisible() && model.getCase(i, j).getNbBomb() != 0)
                 {
-                    int nbBonbs = model.getCase(i, j).getNbBomb();
-                    caseImage.setImage(this.buildImage("/images/Square" + nbBonbs + ".png"));
-                           
-                }
-                else
-                {
-                    this.tabImageView[i][j].setImage(this.buildImage("/images/Square.png"));
+                    int nbBombs = model.getCase(i, j).getNbBomb();
+                    caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
                 }
             }
         }
