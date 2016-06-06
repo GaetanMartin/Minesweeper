@@ -31,7 +31,7 @@ public class GUI extends Application implements Observer {
 
     private Board model;
     private ImageView[][] tabImageView;
-    private final int SQUARESIZE = 20;
+    private final int SQUARESIZE = 30;
     private ImageRefresher imageRefresher;
 
     /**
@@ -51,8 +51,9 @@ public class GUI extends Application implements Observer {
             });
 
     @Override
-    public void start(Stage primaryStage) {
-        model = new Board(10, 10, 5);
+    public void start(Stage primaryStage)
+    {
+        model = new Board(3, 3, 2);
         tabImageView = new ImageView[model.getRow()][model.getCol()];
         model.addObserver(this);
         imageRefresher = new ImageRefresher(tabImageView, model);

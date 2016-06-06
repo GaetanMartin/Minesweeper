@@ -19,6 +19,9 @@ public class Board extends Observable
     private int col;
     private final int nbBomb; //Number of bomb
     private boolean lost;
+    private boolean win;
+    private int nbFlag;
+    
     public Case[][] getBoard()
     {
         return board;
@@ -52,6 +55,24 @@ public class Board extends Observable
     public void setLost(boolean lost) {
         this.lost = lost;
     }
+
+    public boolean isWin() {
+        return win;
+    }
+
+    public void setWin(boolean win) {
+        this.win = win;
+    }
+
+    public int getNbFlag() {
+        return nbFlag;
+    }
+
+    public void setNbFlag(int nbFlag) {
+        this.nbFlag = nbFlag;
+    }
+    
+    
     
 
     /**
@@ -67,7 +88,9 @@ public class Board extends Observable
         this.setCol(col);
         this.setRow(row);
         this.nbBomb = bomb;
-
+        this.nbFlag = 0;
+        this.setLost(false);
+        this.setWin(false);
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 board[i][j] = new Case();
@@ -119,6 +142,12 @@ public class Board extends Observable
     public void rightClick(int row, int col) {
         if (!this.getCase(row, col).isVisible()) {
             this.getCase(row, col).setFlag();
+            this.nbFlag ++;
+            if (this.nbAllUnDiscovered() == this.nbBomb)
+            {
+                    this.setWin(true);
+            }
+            
             this.update();
         }
     }
@@ -140,6 +169,10 @@ public class Board extends Observable
                     c.discover();
                     c.discoverNeighbours();
                 }
+                if (this.nbAllUnDiscovered() == this.nbBomb)
+                {
+                        this.setWin(true);
+                }
             }
         }
         this.update();
@@ -152,6 +185,21 @@ public class Board extends Observable
                 this.getCase(row, col).discover();
             }
         }
+    }
+    
+    
+    public int nbAllUnDiscovered()
+    {
+        int counter = 0;
+        for (int row = 0; row < this.getRow(); row++) {
+            for (int col = 0; col < this.getCol(); col++) {
+                if(this.getCase(row, col).isFlag())
+                {
+                    counter ++;
+                }
+            }
+        }
+        return counter;
     }
 
     /**

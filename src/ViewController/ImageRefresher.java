@@ -26,7 +26,13 @@ public class ImageRefresher implements Runnable {
 
     @Override
     public void run() {
-        
+        if(model.isWin())
+        {
+            System.out.println("WIIIIIIIIIIINNNNNNNNNNN");
+        } else if(model.isLost())
+        {
+            System.out.println("LOOOOOOOOSSSSSSSSSSSTTTTT");
+        }
         for (int i = 0; i < model.getRow(); i++)
         {
             for (int j = 0; j < model.getCol(); j++)
