@@ -6,64 +6,93 @@
 package ViewController;
 
 import Model.Board;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /**
  * Class ImageRefresher used to refresh the GUI
+ *
  * @author Gaetan
  */
-public class ImageRefresher implements Runnable {
+public class ImageRefresher implements Runnable
+{
 
     private final ImageView[][] images;
 
+    private final Button smiley;
+
     private final Board model;
 
-    public ImageRefresher(ImageView[][] images, Board model) {
+    public ImageRefresher(ImageView[][] images, Button smiley, Board model)
+    {
         this.images = images;
         this.model = model;
+        this.smiley = smiley;
     }
 
     @Override
-    public void run() {        
-        if(model.isWin())
+    public void run()
+    {
+        if (model.isWin())
         {
-            System.out.println("WIIIIIIIIIIINNNNNNNNNNN");
-        } else if(model.isLost())
+            Image image = new Image(getClass().getResource("/images/Win.png").toExternalForm());
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(25);
+            imageView.setFitHeight(25);
+            smiley.setGraphic(imageView);
+        } else if (model.isLost())
         {
-            System.out.println("LOOOOOOOOSSSSSSSSSSSTTTTT");
+            Image image = new Image(getClass().getResource("/images/Cry.png").toExternalForm());
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(25);
+            imageView.setFitHeight(25);
+            smiley.setGraphic(imageView);
+        } else
+        {
+            Image image = new Image(getClass().getResource("/images/Smile.png").toExternalForm());
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(25);
+            imageView.setFitHeight(25);
+            smiley.setGraphic(imageView);
         }
         for (int i = 0; i < model.getRow(); i++)
         {
             for (int j = 0; j < model.getCol(); j++)
             {
-                ImageView caseImage =  this.images[i][j];
-                
-                switch(model.getCase(i, j).getState())
+                ImageView caseImage = this.images[i][j];
+
+                switch (model.getCase(i, j).getState())
                 {
-                    case FLAGGED :
-                        caseImage.setImage(this.buildImage("/images/Flag.png")); 
+                    case UNDISCOVERED:
+                        caseImage.setImage(this.buildImage("/images/Square.png"));
                         break;
-                    case DISCOVERED :
+                    case FLAGGED:
+                        caseImage.setImage(this.buildImage("/images/Flag.png"));
+                        break;
+                    case DISCOVERED:
                         int nbBombs = model.getCase(i, j).getNbBomb();
                         caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
                         break;
-                    case EMPTY : 
+                    case EMPTY:
                         caseImage.setImage(this.buildImage("/images/EmptySquare.png"));
                         break;
-                    case TRIGGERED : 
+                    case TRIGGERED:
                         caseImage.setImage(this.buildImage("/images/Mine.png"));
                         break;
-                    case TRAPPED : 
+                    case TRAPPED:
                         if (model.gameFinished()) // Display only if the game is finished
+                        {
                             caseImage.setImage(this.buildImage("/images/Bomb.png"));
+                        }
                         break;
-                    default :
+                    default:
                         caseImage.setImage(this.buildImage("/images/Square.png"));
                         break;
                 }
             }
         }
+
     }
 
     /**
@@ -72,7 +101,8 @@ public class ImageRefresher implements Runnable {
      * @param imagePath
      * @return Image, the image desired
      */
-    public Image buildImage(String imagePath) {
+    public Image buildImage(String imagePath)
+    {
         Image image = new Image(getClass().getResource(imagePath).toExternalForm());
         return image;
     }
