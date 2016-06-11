@@ -58,6 +58,8 @@ public class Board extends Observable {
         this.nbFlag = nbFlag;
     }
 
+
+
     /**
      * Constructor
      *
@@ -80,6 +82,22 @@ public class Board extends Observable {
         }
         generateBomb();
         addNeignbours();
+    }
+    
+    public void resetBoard()
+    {
+       this.board = new Case[row][col];
+        this.nbFlag = 0;
+        this.setLost(false);
+        this.setWin(false);
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                board[i][j] = new Case();
+            }
+        }
+        generateBomb();
+        addNeignbours();
+        this.update();
     }
 
     public void addNeignbours() {
@@ -180,9 +198,12 @@ public class Board extends Observable {
             default:
                 break;
         }
-
+        
+        
+        
         this.update();
     }
+
 
     /**
      * Game won if all bombs are flagged or if every case undiscovered remaining
@@ -229,7 +250,6 @@ public class Board extends Observable {
         if (!this.isWin() || this.isLost()) {
             return;
         }
-
         this.discoverAll();
     }
 

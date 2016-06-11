@@ -108,10 +108,10 @@ public class Case
     {
         if (this.state == CaseState.TRIGGERED) return;
         
-        if (flag)
-            setState(CaseState.FLAGGED);
-        else if (! isVisible())
+        if (! isVisible())
             setState(CaseState.UNDISCOVERED);
+        else if (flag)
+            setState(CaseState.FLAGGED);
         else if (isTrap() && isVisible())
             setState(CaseState.TRAPPED);
         else if (isVisible() && nbBomb == 0)
