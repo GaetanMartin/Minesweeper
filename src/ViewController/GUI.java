@@ -6,6 +6,8 @@
 package ViewController;
 
 import Model.Board;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
@@ -30,7 +32,7 @@ import javafx.stage.Stage;
 public class GUI extends Application implements Observer {
 
     private Board model;
-    private ImageView[][] tabImageView;
+    private List<List<ImageView>> imageViews;
     private final int SQUARESIZE = 30;
     private ImageRefresher imageRefresher;
 
@@ -54,9 +56,14 @@ public class GUI extends Application implements Observer {
 
     public void start(Stage primaryStage) {
         model = new Board(3, 3, 2);
-        tabImageView = new ImageView[model.getRow()][model.getCol()];
+        imageViews = new ArrayList<>();
+        for (int i = 0; i < model.getBoard().size(); i++) {
+            imageViews.add(new ArrayList<>());
+        }
+
+        /* imageViews = new ImageView[model.getRow()][model.getCol()]; */
         model.addObserver(this);
-        imageRefresher = new ImageRefresher(tabImageView, model);
+        imageRefresher = new ImageRefresher(imageViews, model);
 
         // gestion du placement (permet de palcer le champ Text affichage en haut, et GridPane gPane au centre)
         BorderPane border = new BorderPane();
@@ -96,20 +103,16 @@ public class GUI extends Application implements Observer {
         int column = 0;
         int row = 0;
 
-        for (int i = 0; i < this.model.getRow(); i++) {
-            for (int j = 0; j < this.model.getCol(); j++) {
+        for (int i = 0; i < this.model.getBoard().size(); i++) {
+            for (int j = 0; j < this.model.getBoard().get(i).size(); j++) {
                 final int cj = j;
                 final int ci = i;
-                Image image = imageRefresher.buildImage("/images/Square.png");
-                ImageView imageView = new ImageView(image);
-                imageView.setFitWidth(SQUARESIZE);
-                imageView.setFitHeight(SQUARESIZE);
-                imageView.setSmooth(true);
+                ImageView imageView = createImageView();
                 gPane.add(imageView, column++, row);
-                tabImageView[i][j] = imageView;
+                imageViews.get(i).add(imageView);
 
                 //When reaching end of a row
-                if (column > this.model.getCol() - 1) {
+                if (column > this.model.getBoard().get(row).size() - 1) {
                     column = 0;
                     row++;
                 }
@@ -132,5 +135,14 @@ public class GUI extends Application implements Observer {
             }
         }
         return gPane;
+    }
+
+    private ImageView createImageView() {
+        Image image = imageRefresher.buildImage("/images/Square.png");
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(SQUARESIZE);
+        imageView.setFitHeight(SQUARESIZE);
+        imageView.setSmooth(true);
+        return imageView;
     }
 }

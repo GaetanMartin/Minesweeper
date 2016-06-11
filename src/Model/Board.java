@@ -5,44 +5,33 @@
  */
 package Model;
 
+import static Model.CaseState.DISCOVERED;
+import static Model.CaseState.EMPTY;
+import static Model.CaseState.FLAGGED;
+import static Model.CaseState.TRAPPED;
+import static Model.CaseState.UNDISCOVERED;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Random;
 
 /**
- * Class Board representing the model side of the game
+ * Class Board2D representing the model side of the game
  */
 public class Board extends Observable {
 
-    private Case[][] board;
-    private int row;
-    private int col;
+    private List<List<Case>> board;
     private final int nbBomb; //Number of bomb
     private boolean lost;
     private boolean win;
     private int nbFlag;
 
-    public Case[][] getBoard() {
+    public List<List<Case>> getBoard() {
         return board;
     }
 
-    public void setBoard(Case[][] board) {
+    public void setBoard(List<List<Case>> board) {
         this.board = board;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public void setRow(int lig) {
-        this.row = lig;
-    }
-
-    public int getCol() {
-        return col;
-    }
-
-    public void setCol(int col) {
-        this.col = col;
     }
 
     public boolean isLost() {
@@ -77,16 +66,16 @@ public class Board extends Observable {
      * @param bomb Number of bomb to be generated on the grid
      */
     public Board(int row, int col, int bomb) {
-        this.board = new Case[row][col];
-        this.setCol(col);
-        this.setRow(row);
         this.nbBomb = bomb;
         this.nbFlag = 0;
         this.setLost(false);
         this.setWin(false);
+        this.board = new ArrayList<>();
+
         for (int i = 0; i < row; i++) {
+            this.board.add(new ArrayList<>());
             for (int j = 0; j < col; j++) {
-                board[i][j] = new Case();
+                this.board.get(i).add(new Case());
             }
         }
         generateBomb();
@@ -94,31 +83,31 @@ public class Board extends Observable {
     }
 
     public void addNeignbours() {
-        for (int row = 0; row < this.getRow(); row++) {
-            for (int col = 0; col < this.getCol(); col++) {
-                if (row < this.getRow() - 1) {
-                    board[row][col].addNeighbour(board[row + 1][col]);
-                    if (col < this.getCol() - 1) {
-                        board[row][col].addNeighbour(board[row + 1][col + 1]);
+        for (int row = 0; row < this.getBoard().size(); row++) {
+            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
+                if (row < this.getBoard().size() - 1) {
+                    board.get(row).get(col).addNeighbour(board.get(row + 1).get(col));
+                    if (col < this.getBoard().get(row).size() - 1) {
+                        board.get(row).get(col).addNeighbour(board.get(row + 1).get(col + 1));
                     }
                     if (col > 0) {
-                        board[row][col].addNeighbour(board[row + 1][col - 1]);
+                        board.get(row).get(col).addNeighbour(board.get(row + 1).get(col - 1));
                     }
                 }
                 if (row > 0) {
-                    board[row][col].addNeighbour(board[row - 1][col]);
-                    if (col < this.getCol() - 1) {
-                        board[row][col].addNeighbour(board[row - 1][col + 1]);
+                    board.get(row).get(col).addNeighbour(board.get(row - 1).get(col));
+                    if (col < this.getBoard().get(row).size() - 1) {
+                        board.get(row).get(col).addNeighbour(board.get(row - 1).get(col + 1));
                     }
                     if (col > 0) {
-                        board[row][col].addNeighbour(board[row - 1][col - 1]);
+                        board.get(row).get(col).addNeighbour(board.get(row - 1).get(col - 1));
                     }
                 }
-                if (col < this.getCol() - 1) {
-                    board[row][col].addNeighbour(board[row][col + 1]);
+                if (col < this.getBoard().get(row).size() - 1) {
+                    board.get(row).get(col).addNeighbour(board.get(row).get(col + 1));
                 }
                 if (col > 0) {
-                    board[row][col].addNeighbour(board[row][col - 1]);
+                    board.get(row).get(col).addNeighbour(board.get(row).get(col - 1));
                 }
             }
         }
@@ -214,8 +203,8 @@ public class Board extends Observable {
      */
     private int nbBombsFlagged() {
         int nb = 0;
-        for (int row = 0; row < this.getRow(); row++) {
-            for (int col = 0; col < this.getCol(); col++) {
+        for (int row = 0; row < this.getBoard().size(); row++) {
+            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
                 Case c = this.getCase(row, col);
                 if (c.isTrap() && c.isFlag()) {
                     nb++;
@@ -245,8 +234,8 @@ public class Board extends Observable {
     }
 
     public void discoverAll() {
-        for (int row = 0; row < this.getRow(); row++) {
-            for (int col = 0; col < this.getCol(); col++) {
+        for (int row = 0; row < this.getBoard().size(); row++) {
+            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
                 this.getCase(row, col).discover();
             }
         }
@@ -254,8 +243,8 @@ public class Board extends Observable {
 
     public int nbAllUndiscovered() {
         int counter = 0;
-        for (int row = 0; row < this.getRow(); row++) {
-            for (int col = 0; col < this.getCol(); col++) {
+        for (int row = 0; row < this.getBoard().size(); row++) {
+            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
                 if (!this.getCase(row, col).isVisible()) {
                     counter++;
                 }
@@ -274,11 +263,12 @@ public class Board extends Observable {
         int j_random;
         for (int i = 0; i < nbBomb; i++) {
             do {
-                i_random = r.nextInt(this.getRow());
-                j_random = r.nextInt(this.getCol());
-            } while (board[i_random][j_random].isTrap());
+                System.out.println(this.board.size());
+                i_random = r.nextInt(this.board.size());
+                j_random = r.nextInt(this.board.get(i_random).size());
+            } while (board.get(i_random).get(j_random).isTrap());
             System.out.println(i_random + "   " + j_random);
-            board[i_random][j_random].setTrap(true);
+            board.get(i_random).get(j_random).setTrap(true);
         }
     }
 
@@ -290,7 +280,7 @@ public class Board extends Observable {
      * @return The case according to the coordinates
      */
     public Case getCase(int i, int j) {
-        return this.board[i][j];
+        return this.board.get(i).get(j);
     }
 
     /**

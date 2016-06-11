@@ -6,6 +6,8 @@
 package ViewController;
 
 import Model.Board;
+import Model.Case;
+import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -15,11 +17,11 @@ import javafx.scene.image.ImageView;
  */
 public class ImageRefresher implements Runnable {
 
-    private final ImageView[][] images;
+    private final List<List<ImageView>> images;
 
     private final Board model;
 
-    public ImageRefresher(ImageView[][] images, Board model) {
+    public ImageRefresher(List<List<ImageView>> images, Board model) {
         this.images = images;
         this.model = model;
     }
@@ -33,12 +35,11 @@ public class ImageRefresher implements Runnable {
         {
             System.out.println("LOOOOOOOOSSSSSSSSSSSTTTTT");
         }
-        for (int i = 0; i < model.getRow(); i++)
+        for (int i = 0; i < model.getBoard().size(); i ++)
         {
-            for (int j = 0; j < model.getCol(); j++)
+            for (int j = 0; j < model.getBoard().get(i).size(); j ++)
             {
-                ImageView caseImage =  this.images[i][j];
-                
+                ImageView caseImage = this.images.get(i).get(j);                
                 switch(model.getCase(i, j).getState())
                 {
                     case FLAGGED :
