@@ -34,12 +34,10 @@ import javafx.stage.Stage;
 /**
  * Class GUI used as a ViewController to display the GUI & manage the events
  */
-public class GUI extends Application implements Observer
-{
+public class GUI extends Application implements Observer {
 
     private Board model;
     private List<List<ImageView>> imageViews;
-    private ImageView[][] tabImageView;
     private Button smiley;
     private final int SQUARESIZE = 30;
     private ImageRefresher imageRefresher;
@@ -55,32 +53,28 @@ public class GUI extends Application implements Observer
      */
     private final ExecutorService executor
             = Executors.newFixedThreadPool(NB_THREAD_MAX, (Runnable r)
-                    -> 
-                    {
-                        Thread thread = new Thread(r);
-                        thread.setDaemon(true);
-                        return thread;
+                    -> {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                return thread;
             });
 
     @Override
 
     public void start(Stage primaryStage) {
+        
+        BorderPane border = new BorderPane();
+        HBox hbox = this.buildTopBar();
+        
         model = new Board(3, 3, 2);
         imageViews = new ArrayList<>();
         for (int i = 0; i < model.getBoard().size(); i++) {
             imageViews.add(new ArrayList<>());
         }
-
-        /* imageViews = new ImageView[model.getRow()][model.getCol()]; */
         model.addObserver(this);
-        imageRefresher = new ImageRefresher(imageViews, model);
+        imageRefresher = new ImageRefresher(imageViews, model, smiley);
 
         // gestion du placement (permet de palcer le champ Text affichage en haut, et GridPane gPane au centre)
-        BorderPane border = new BorderPane();
-
-        HBox hbox = this.buildTopBar();
-
-        imageRefresher = new ImageRefresher(tabImageView, smiley, model);
         // permet de placer les diffrents boutons dans une grille
         GridPane gPane = new GridPane();
         this.buildGrid(gPane);
@@ -101,19 +95,16 @@ public class GUI extends Application implements Observer
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void update(Observable o, Object arg)
-    {
+    public void update(Observable o, Object arg) {
         Platform.runLater(imageRefresher);
     }
 
-    public HBox buildTopBar()
-    {
+    public HBox buildTopBar() {
         HBox hbox = new HBox();
         hbox.setPadding(new Insets(5, 5, 5, 5));
         hbox.setSpacing(2);
@@ -123,8 +114,7 @@ public class GUI extends Application implements Observer
         return hbox;
     }
 
-    public void addStackPane(HBox hb)
-    {
+    public void addStackPane(HBox hb) {
         StackPane stack = new StackPane();
         smiley = new Button();
 
@@ -135,17 +125,13 @@ public class GUI extends Application implements Observer
         smiley.setGraphic(imageView);
 
         smiley.setOnMouseClicked((MouseEvent event)
-                -> 
-                {
-                    if (event.getButton() == MouseButton.PRIMARY)
-                    {
-                        executor.execute(()
-                                -> 
-                                {
-                                    model.resetBoard();
+                -> {
+                    if (event.getButton() == MouseButton.PRIMARY) {
+                        executor.execute(() -> {
+                            model.resetBoard();
                         });
                     }
-        });
+                });
 
         stack.getChildren().addAll(smiley);
         stack.setAlignment(Pos.CENTER);     // Right-justify nodes in stack
@@ -153,13 +139,13 @@ public class GUI extends Application implements Observer
         hb.getChildren().add(stack);            // Add to HBox from Example 1-2
         HBox.setHgrow(stack, Priority.ALWAYS);    // Give stack any extra space
     }
+
     /**
      * Method to build the playing grid
      *
      * @return GridPane
      */
-    public void buildGrid(GridPane gPane)
-    {
+    public void buildGrid(GridPane gPane) {
         int column = 0;
         int row = 0;
 
@@ -178,29 +164,23 @@ public class GUI extends Application implements Observer
                 }
 
                 imageView.setOnMouseClicked((MouseEvent event)
-                        -> 
-                        {
-                            if (model.gameFinished())
-                            {
+                        -> {
+                            if (model.gameFinished()) {
                                 System.out.println("Game Finished ! ");
                                 return;
                             }
-                            if (event.getButton() == MouseButton.SECONDARY)
-                            {
+                            if (event.getButton() == MouseButton.SECONDARY) {
                                 executor.execute(()
-                                        -> 
-                                        {
-                                            model.rightClick(ci, cj);
+                                        -> {
+                                    model.rightClick(ci, cj);
                                 });
-                            } else if (event.getButton() == MouseButton.PRIMARY)
-                            {
+                            } else if (event.getButton() == MouseButton.PRIMARY) {
                                 executor.execute(()
-                                        -> 
-                                        {
-                                            model.leftClick(ci, cj);
+                                        -> {
+                                    model.leftClick(ci, cj);
                                 });
                             }
-                });
+                        });
             }
         }
     }

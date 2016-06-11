@@ -83,6 +83,15 @@ public class Case
         this.setVisible(false);
         this.setState();
     }
+    
+    public void reset()
+    {
+        this.setFlag(false);
+        this.setTrap(false);
+        this.neighbours = new LinkedList<>();
+        this.setVisible(false);
+        this.setState();
+    }
 
     public void setFlag()
     {
@@ -156,5 +165,12 @@ public class Case
             }
         }
         return nbBomb;
+    }
+    
+    @Override
+    public String toString() {
+        String r = "";
+        r += this.getState();
+        return r;
     }
 }

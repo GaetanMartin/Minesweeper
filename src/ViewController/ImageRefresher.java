@@ -6,6 +6,7 @@
 package ViewController;
 
 import Model.Board;
+import java.util.List;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,7 +25,7 @@ public class ImageRefresher implements Runnable
 
     private final Board model;
 
-    public ImageRefresher(List<List<ImageView>> images, Board model) {
+    public ImageRefresher(List<List<ImageView>> images, Board model, Button smiley) {
         this.images = images;
         this.model = model;
         this.smiley = smiley;
@@ -59,7 +60,7 @@ public class ImageRefresher implements Runnable
         {
             for (int j = 0; j < model.getBoard().get(i).size(); j ++)
             {
-                ImageView caseImage = this.images[i][j];
+                ImageView caseImage = this.images.get(i).get(j);
 
                 switch (model.getCase(i, j).getState())
                 {

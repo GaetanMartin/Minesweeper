@@ -25,7 +25,7 @@ public class Board extends Observable {
     private boolean lost;
     private boolean win;
     private int nbFlag;
-
+    
     public List<List<Case>> getBoard() {
         return board;
     }
@@ -86,15 +86,14 @@ public class Board extends Observable {
     
     public void resetBoard()
     {
-       this.board = new Case[row][col];
+        for (List<Case> list : board) {
+            for (Case c : list) {
+                c.reset();
+            }
+        }
         this.nbFlag = 0;
         this.setLost(false);
         this.setWin(false);
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                board[i][j] = new Case();
-            }
-        }
         generateBomb();
         addNeignbours();
         this.update();
@@ -310,6 +309,19 @@ public class Board extends Observable {
         // Notify the view to update
         setChanged();
         notifyObservers();
+    }
+    
+    @Override
+    public String toString()
+    {
+        String r = "";
+        for (int i = 0; i < board.size(); i ++) {
+            for (int j = 0; j < board.get(i).size(); j ++) {
+                r += board.get(i).get(j) + " ";
+            }
+            r += "\n";
+        }
+        return r;
     }
 
 }
