@@ -7,6 +7,7 @@ package ViewController;
 
 import Model.Board;
 import Model.Board2D;
+import Model.BoardPyramid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -67,7 +68,7 @@ public class GUI extends Application implements Observer {
         BorderPane border = new BorderPane();
         HBox hbox = this.buildTopBar();
         
-        model = new Board2D(3, 3, 2);
+        model = new BoardPyramid(3, 3, 2);
         imageViews = new ArrayList<>();
         for (int i = 0; i < model.getBoard().size(); i++) {
             imageViews.add(new ArrayList<>());
@@ -144,7 +145,7 @@ public class GUI extends Application implements Observer {
     /**
      * Method to build the playing grid
      *
-     * @return GridPane
+     * @param gPane
      */
     public void buildGrid(GridPane gPane) {
         int column = 0;
@@ -178,6 +179,7 @@ public class GUI extends Application implements Observer {
                             } else if (event.getButton() == MouseButton.PRIMARY) {
                                 executor.execute(()
                                         -> {
+                                    System.out.println("ci : " + ci + " cj : " + cj);
                                     model.leftClick(ci, cj);
                                 });
                             }

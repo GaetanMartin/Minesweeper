@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public abstract class Board extends Observable {
 
-    protected final List<List<Case>> board = new ArrayList<>();;
+    protected final List<List<Case>> board;
     protected final int nbBomb; //Number of bomb
     protected int nbFlag;
     
@@ -54,14 +54,27 @@ public abstract class Board extends Observable {
         this.nbBomb = bomb;
         this.nbFlag = 0;
         this.state = GameState.RUNNING;
-        for (int i = 0; i < row; i++) {
-            this.board.add(new ArrayList<>());
-            for (int j = 0; j < col; j++) {
-                this.board.get(i).add(new Case());
-            }
-        }
+        this.board = createBoard(row, col);
         generateBomb();
         addNeighbours();
+    }
+    
+    /**
+     * Create the board
+     * 
+     * @param row
+     * @param col
+     * @return
+     */
+    protected List<List<Case>> createBoard(int row, int col) {
+        List<List<Case>> grid = new ArrayList<>();
+        for (int i = 0; i < row; i++) {
+            grid.add(new ArrayList<>());
+            for (int j = 0; j < col; j++) {
+                grid.get(i).add(new Case());
+            }
+        }
+        return grid;
     }
     
     /**
@@ -84,8 +97,7 @@ public abstract class Board extends Observable {
 
     /**
      * Set the neighbours for every cases
-     */
-    
+     */    
     public void addNeighbours() {
         for (int row = 0; row < this.getBoard().size(); row++) {
             for (int col = 0; col < this.getBoard().get(row).size(); col++) {
