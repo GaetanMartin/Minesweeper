@@ -41,7 +41,7 @@ public final class Board2D extends Board {
         }
         this.nbFlag = 0;
         this.state = GameState.RUNNING;
-        generateBomb();
+        generateBomb(board);
         addNeighbours();
         this.update();
     }

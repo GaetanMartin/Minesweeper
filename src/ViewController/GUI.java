@@ -17,17 +17,16 @@ import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -39,10 +38,14 @@ import javafx.stage.Stage;
 public class GUI extends Application implements Observer {
 
     private Board model;
-    private List<List<ImageView>> imageViews;
+    private static List<List<Node>> caseNodes;
+
+    public static List<List<Node>> getCaseNodes() {
+        return caseNodes;
+    }
     private Button smiley;
-    private final int SQUARESIZE = 30;
-    private ImageRefresher imageRefresher;
+    private static final int SQUARESIZE = 30;
+    private static ImageRefresher imageRefresher;
 
     /**
      * Max number of threads for the ExecutorService Used to process the model
@@ -60,45 +63,47 @@ public class GUI extends Application implements Observer {
                 thread.setDaemon(true);
                 return thread;
             });
-
-    @Override
-
-    public void start(Stage primaryStage) {
-        
-        BorderPane border = new BorderPane();
-        HBox hbox = this.buildTopBar();
-        
-        model = new BoardPyramid(3, 3, 2);
-        imageViews = new ArrayList<>();
-        for (int i = 0; i < model.getBoard().size(); i++) {
-            imageViews.add(new ArrayList<>());
-        }
-        model.addObserver(this);
-        imageRefresher = new ImageRefresher(imageViews, model, smiley);
-
-        // gestion du placement (permet de palcer le champ Text affichage en haut, et GridPane gPane au centre)
-        // permet de placer les diffrents boutons dans une grille
-        GridPane gPane = new GridPane();
-        this.buildGrid(gPane);
-
-        border.setCenter(gPane);
-        border.setTop(hbox);
-        gPane.setBorder(Border.EMPTY);
-
-        gPane.setPadding(new Insets(2, 2, 2, 2));
-        Scene scene = new Scene(border, Color.WHITE);
-
-        primaryStage.setTitle("Minesweeper");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-    }
-
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+
+        BorderPane borderPane = new BorderPane();
+        HBox hbox = this.buildTopBar();
+
+        model = new Board2D(10, 10, 20);
+        model.addObserver(this);
+        
+        caseNodes = new ArrayList<>();
+        for (int i = 0; i < model.getBoard().size(); i++) {
+            caseNodes.add(new ArrayList<>());
+            for (int j = 0; j < model.getBoard().get(i).size(); j++) {
+                // caseNodes.add("");
+            }
+        }
+        
+        imageRefresher = new ImageRefresher(caseNodes, model, smiley);
+        
+        Pane p;
+        if (model instanceof BoardPyramid)
+            p = PaneBuilder.createBorderPane(model, executor);
+        else
+            p = PaneBuilder.createGridPane(model, executor);
+        
+        borderPane.setCenter(p);
+        borderPane.setTop(hbox);
+        Scene scene = new Scene(borderPane, Color.WHITE);
+
+        primaryStage.setTitle("Minesweeper");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
     }
 
     @Override
@@ -111,22 +116,38 @@ public class GUI extends Application implements Observer {
         hbox.setPadding(new Insets(5, 5, 5, 5));
         hbox.setSpacing(2);
         hbox.setStyle("-fx-background-color: #336699;");
-
-        addStackPane(hbox);
+        
+        Image image = new Image(getClass().getResource("/images/Sleep.png").toExternalForm());
+        smiley = this.createSmileyButton(image);
+        StackPane stack = PaneBuilder.createStackPane(smiley, image, model, executor);
+        
+        hbox.getChildren().add(stack);            // Add to HBox from Example 1-2
+        HBox.setHgrow(stack, Priority.ALWAYS);    // Give stack any extra space
         return hbox;
     }
 
-    public void addStackPane(HBox hb) {
-        StackPane stack = new StackPane();
-        smiley = new Button();
-
-        Image image = new Image(getClass().getResource("/images/Sleep.png").toExternalForm());
+    public static ImageView createImageView() {
+        Image image = imageRefresher.buildImage("/images/Square.png");
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(SQUARESIZE);
+        imageView.setFitHeight(SQUARESIZE);
+        imageView.setSmooth(true);
+        return imageView;
+    }
+    
+    /**
+     * Create and set up a button
+     * @param image
+     * @return 
+     */
+    private Button createSmileyButton(Image image) {
+        Button button = new Button();
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(25);
         imageView.setFitHeight(25);
-        smiley.setGraphic(imageView);
+        button.setGraphic(imageView);
 
-        smiley.setOnMouseClicked((MouseEvent event)
+        button.setOnMouseClicked((MouseEvent event)
                 -> {
                     if (event.getButton() == MouseButton.PRIMARY) {
                         executor.execute(() -> {
@@ -134,66 +155,6 @@ public class GUI extends Application implements Observer {
                         });
                     }
                 });
-
-        stack.getChildren().addAll(smiley);
-        stack.setAlignment(Pos.CENTER);     // Right-justify nodes in stack
-
-        hb.getChildren().add(stack);            // Add to HBox from Example 1-2
-        HBox.setHgrow(stack, Priority.ALWAYS);    // Give stack any extra space
-    }
-
-    /**
-     * Method to build the playing grid
-     *
-     * @param gPane
-     */
-    public void buildGrid(GridPane gPane) {
-        int column = 0;
-        int row = 0;
-
-        for (int i = 0; i < this.model.getBoard().size(); i++) {
-            for (int j = 0; j < this.model.getBoard().get(i).size(); j++) {
-                final int cj = j;
-                final int ci = i;
-                ImageView imageView = createImageView();
-                gPane.add(imageView, column++, row);
-                imageViews.get(i).add(imageView);
-
-                //When reaching end of a row
-                if (column > this.model.getBoard().get(row).size() - 1) {
-                    column = 0;
-                    row++;
-                }
-
-                imageView.setOnMouseClicked((MouseEvent event)
-                        -> {
-                            if (model.gameFinished()) {
-                                System.out.println("Game Finished ! ");
-                                return;
-                            }
-                            if (event.getButton() == MouseButton.SECONDARY) {
-                                executor.execute(()
-                                        -> {
-                                    model.rightClick(ci, cj);
-                                });
-                            } else if (event.getButton() == MouseButton.PRIMARY) {
-                                executor.execute(()
-                                        -> {
-                                    System.out.println("ci : " + ci + " cj : " + cj);
-                                    model.leftClick(ci, cj);
-                                });
-                            }
-                        });
-            }
-        }
-    }
-
-    private ImageView createImageView() {
-        Image image = imageRefresher.buildImage("/images/Square.png");
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(SQUARESIZE);
-        imageView.setFitHeight(SQUARESIZE);
-        imageView.setSmooth(true);
-        return imageView;
+        return button;
     }
 }

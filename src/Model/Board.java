@@ -55,7 +55,7 @@ public abstract class Board extends Observable {
         this.nbFlag = 0;
         this.state = GameState.RUNNING;
         this.board = createBoard(row, col);
-        generateBomb();
+        generateBomb(board);
         addNeighbours();
     }
     
@@ -90,7 +90,7 @@ public abstract class Board extends Observable {
         }
         this.nbFlag = 0;
         this.state = GameState.RUNNING;
-        generateBomb();
+        generateBomb(board);
         addNeighbours();
         this.update();
     }
@@ -291,14 +291,15 @@ public abstract class Board extends Observable {
 
     /**
      * Method to generate randomly a list of bombs and put it on the grid
+     * @param board
      */
-    protected void generateBomb() {
+    protected void generateBomb(List<List<Case>> board) {
         Random r = new Random();
         int i_random, j_random;
         for (int i = 0; i < nbBomb; i++) {
             do {
-                i_random = r.nextInt(this.board.size());
-                j_random = r.nextInt(this.board.get(i_random).size());
+                i_random = r.nextInt(board.size());
+                j_random = r.nextInt(board.get(i_random).size());
             } while (board.get(i_random).get(j_random).isTrap());
             System.out.println(i_random + "   " + j_random);
             board.get(i_random).get(j_random).setTrap(true);

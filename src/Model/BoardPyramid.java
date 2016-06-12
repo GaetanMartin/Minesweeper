@@ -13,9 +13,23 @@ import java.util.List;
  * @author Gaetan
  */
 public class BoardPyramid extends Board {
+    
+    /**
+     * Size of the base of the pyramid
+     */
+    private int baseSize;
 
     public BoardPyramid(int row, int col, int bomb) {
         super(row, col, bomb);
+        this.baseSize = row;
+    }
+    
+    /**
+     * Method to generate randomly a list of bombs and put it on the grid
+     */
+    @Override
+    protected void generateBomb(List<List<Case>> board) {
+        super.generateBomb(board);
     }
     
     /**
@@ -27,7 +41,16 @@ public class BoardPyramid extends Board {
      */
     @Override
     protected List<List<Case>> createBoard(int row, int col) {
-        return this.createPyramid(row);
+        this.baseSize = row;
+        return this.createPyramid();
+    }
+    
+    /**
+     * Create a pyramid with baseSize
+     * @return 
+     */
+    private List<List<Case>> createPyramid() {
+        return this.createPyramid(baseSize);
     }
     
     /**
