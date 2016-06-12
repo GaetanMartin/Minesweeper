@@ -24,6 +24,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Polygon;
 
 /**
@@ -58,9 +59,7 @@ public class PaneBuilder {
 
         for (int i = 0; i < model.getBoard().size(); i++) {
             for (int j = 0; j < model.getBoard().get(i).size(); j++) {
-                Node n;
-
-                n = GUI.createImageView();
+                Node n = GUI.createImageView();
                 gPane.add(n, column++, row);
                 GUI.getCaseNodes().get(i).add(n);
 
@@ -69,20 +68,22 @@ public class PaneBuilder {
                     column = 0;
                     row++;
                 }
-
                 n.setOnMouseClicked(new CustomEventHandler(model, i, j, executor));
-
             }
         }
-            gPane.setBorder(Border.EMPTY);
-            gPane.setPadding(new Insets(2, 2, 2, 2));
-            return gPane;
-        }
-    
-    
+        gPane.setBorder(Border.EMPTY);
+        gPane.setPadding(new Insets(2, 2, 2, 2));
+        return gPane;
+    }
 
-    
-
+    /**
+     * Create stack pane (header)
+     * @param smiley
+     * @param image
+     * @param model
+     * @param executor
+     * @return 
+     */
     public static StackPane createStackPane(Button smiley, Image image, Board model, ExecutorService executor) {
 
         StackPane stack = new StackPane();
@@ -117,6 +118,8 @@ public class PaneBuilder {
                 Polygon p = pyramid.get(i).get(j);
                 p.setOnMouseClicked(new CustomEventHandler(model, i, j, executor));
                 borderPane.getChildren().add(p);
+                p.setFill(new ImagePattern(GUI.createImageView().getImage())); // Todo maybe change here
+                GUI.getCaseNodes().get(i).add(p);
             }
         }
         return borderPane;

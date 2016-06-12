@@ -12,6 +12,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Polygon;
 
 /**
  * Class ImageRefresher used to refresh the GUI
@@ -34,39 +36,66 @@ public class ImageRefresher implements Runnable {
 
     @Override
     public void run() {
-        
+        Image image = this.buildImage("/images/Square.png");;
         setSmiley(smiley, model.getState());
         for (int i = 0; i < images.size(); i++) {
             for (int j = 0; j < images.get(i).size(); j++) {
-                ImageView caseImage = (ImageView) this.images.get(i).get(j);
+                Node caseImage = this.images.get(i).get(j);
                 switch (model.getCase(i, j).getState()) {
                     case UNDISCOVERED:
-                        caseImage.setImage(this.buildImage("/images/Square.png"));
+                        image = this.buildImage("/images/Square.png");
+                        // caseImage.setImage(this.buildImage("/images/Square.png"));
                         break;
                     case FLAGGED:
-                        caseImage.setImage(this.buildImage("/images/Flag.png"));
+                        image = this.buildImage("/images/Flag.png");
+                        // caseImage.setImage(this.buildImage("/images/Flag.png"));
                         break;
                     case DISCOVERED:
                         int nbBombs = model.getCase(i, j).getNbBomb();
-                        caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
+                        image = this.buildImage("/images/Square" + nbBombs + ".png");
+                        // caseImage.setImage(this.buildImage("/images/Square" + nbBombs + ".png"));
                         break;
                     case EMPTY:
-                        caseImage.setImage(this.buildImage("/images/EmptySquare.png"));
+                        image = this.buildImage("/images/EmptySquare.png");
+                        // caseImage.setImage(this.buildImage("/images/EmptySquare.png"));
                         break;
                     case TRIGGERED:
-                        caseImage.setImage(this.buildImage("/images/Mine.png"));
+                        image = this.buildImage("/images/Mine.png");
+                        // caseImage.setImage(this.buildImage("/images/Mine.png"));
                         break;
                     case TRAPPED:
                         if (model.gameFinished()) // Display only if the game is finished
                         {
-                            caseImage.setImage(this.buildImage("/images/Bomb.png"));
+                            // caseImage.setImage(this.buildImage("/images/Bomb.png"));
+                            image = this.buildImage("/images/Bomb.png");
+                        } else {
+                            image = this.buildImage("/images/Square.png");
                         }
                         break;
                     default:
-                        caseImage.setImage(this.buildImage("/images/Square.png"));
+                        // caseImage.setImage(this.buildImage("/images/Square.png"));
+                        image = this.buildImage("/images/Square.png");
                         break;
                 }
+                this.putImage(caseImage, image);
             }
+        }
+    }
+
+    /**
+     * Set an image on the node depending if it's a form (polygon) or an
+     * imageview
+     *
+     * @param n
+     * @param i
+     */
+    private void putImage(Node n, Image i) {
+        if (n instanceof Polygon) {
+            Polygon p = (Polygon) n;
+            p.setFill(new ImagePattern(i));
+        } else {
+            ImageView iv = (ImageView) n;
+            iv.setImage(i);
         }
     }
 
@@ -83,8 +112,9 @@ public class ImageRefresher implements Runnable {
 
     /**
      * Set the button given accordingly
+     *
      * @param b
-     * @param state 
+     * @param state
      */
     private void setSmiley(Button b, GameState state) {
         Image image;
