@@ -10,39 +10,13 @@ import static Model.CaseState.EMPTY;
 import static Model.CaseState.FLAGGED;
 import static Model.CaseState.TRAPPED;
 import static Model.CaseState.UNDISCOVERED;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Random;
 
 /**
  * Class Board2D representing the model side of the game
  */
-public abstract class Board extends Observable {
-
-    protected final List<List<Case>> board = new ArrayList<>();;
-    protected final int nbBomb; //Number of bomb
-    protected int nbFlag;
+public final class Board2D extends Board {
     
-    /**
-     * Represents the state of the game
-     */
-    protected GameState state;
-
-    
-    public GameState getState() {
-        return state;
-    }
-    
-    
-    public List<List<Case>> getBoard() {
-        return board;
-    }
-
-    public int getNbFlag() {
-        return nbFlag;
-    }
-
     /**
      * Constructor
      *
@@ -50,24 +24,14 @@ public abstract class Board extends Observable {
      * @param col Number of columns in the playing grid
      * @param bomb Number of bomb to be generated on the grid
      */
-    public Board(int row, int col, int bomb) {
-        this.nbBomb = bomb;
-        this.nbFlag = 0;
-        this.state = GameState.RUNNING;
-        for (int i = 0; i < row; i++) {
-            this.board.add(new ArrayList<>());
-            for (int j = 0; j < col; j++) {
-                this.board.get(i).add(new Case());
-            }
-        }
-        generateBomb();
-        addNeighbours();
+    public Board2D(int row, int col, int bomb) {
+        super(row, col, bomb);
     }
     
     /**
      * Reset the board to the initial state (empty, ready to play)
      */
-    
+    @Override
     public void resetBoard()
     {
         for (List<Case> list : board) {
@@ -85,7 +49,7 @@ public abstract class Board extends Observable {
     /**
      * Set the neighbours for every cases
      */
-    
+    @Override
     public void addNeighbours() {
         for (int row = 0; row < this.getBoard().size(); row++) {
             for (int col = 0; col < this.getBoard().get(row).size(); col++) {
@@ -124,7 +88,7 @@ public abstract class Board extends Observable {
      * @param row the row id of the case clicked
      * @param col the col id of the case clicked
      */
-    
+    @Override
     public void rightClick(int row, int col) {
 
         if (gameFinished()) {
@@ -163,7 +127,7 @@ public abstract class Board extends Observable {
      * @param row : the row id of the case clicked
      * @param col : the col id of the case clicked
      */
-    
+    @Override
     public void leftClick(int row, int col) {
 
         Case c = this.getCase(row, col);
@@ -192,137 +156,6 @@ public abstract class Board extends Observable {
                 break;
         }
         this.update();
-    }
-
-
-    /**
-     * Game won if all bombs are flagged or if every case undiscovered remaining
-     * are bombs
-     *
-     * @return true if the game is won, false if not yet
-     */
-    protected boolean gameWon() {
-        int nbUndiscovered = this.nbAllUndiscovered();
-        return (nbUndiscovered == this.nbBomb
-                || (nbBombsFlagged() == this.nbBomb && this.nbFlag == this.nbBomb)); // Maybe remove this
-    }
-
-    /**
-     * Return the number of bombs flagged
-     *
-     * @return the number of bombs flagged
-     */
-    protected int nbBombsFlagged() {
-        int nb = 0;
-        for (int row = 0; row < this.getBoard().size(); row++) {
-            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
-                Case c = this.getCase(row, col);
-                if (c.isTrap() && c.isFlag()) {
-                    nb++;
-                }
-            }
-        }
-        return nb;
-    }
-
-    /**
-     * Test if the game is finished
-     * @return false if the game is still running, true else
-     */
-    
-    public boolean gameFinished() {
-        return (! (this.state == GameState.RUNNING));
-    }
-
-    /**
-     * Manage the defeat
-     */
-    protected void manageDefeat() {
-        if (this.state == GameState.LOST)
-            discoverAll();
-    }
-
-    /**
-     * Manage the victory
-     */
-    protected void manageWin() {
-        if (this.state == GameState.WON)
-            this.discoverAll(); 
-    }
-
-    /**
-     * Discover all the cases
-     */
-    protected void discoverAll() {
-        for (int row = 0; row < this.getBoard().size(); row++) {
-            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
-                this.getCase(row, col).discover();
-            }
-        }
-    }
-
-    /**
-     * Return the number of cases not visible
-     * @return 
-     */
-    protected int nbAllUndiscovered() {
-        int counter = 0;
-        for (int row = 0; row < this.getBoard().size(); row++) {
-            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
-                if (!this.getCase(row, col).isVisible()) {
-                    counter++;
-                }
-            }
-        }
-        return counter;
-    }
-
-    /**
-     * Method to generate randomly a list of bombs and put it on the grid
-     */
-    protected void generateBomb() {
-        Random r = new Random();
-        int i_random, j_random;
-        for (int i = 0; i < nbBomb; i++) {
-            do {
-                i_random = r.nextInt(this.board.size());
-                j_random = r.nextInt(this.board.get(i_random).size());
-            } while (board.get(i_random).get(j_random).isTrap());
-            System.out.println(i_random + "   " + j_random);
-            board.get(i_random).get(j_random).setTrap(true);
-        }
-    }
-
-    /**
-     * Get the case specified
-     *
-     * @param i
-     * @param j
-     * @return The case according to the coordinates
-     */
-    
-    public Case getCase(int i, int j) {
-        return this.board.get(i).get(j);
-    }
-
-    /**
-     * Ask the view to update the GUI content
-     */
-    protected void update() {
-        // Notify the view to update
-        setChanged();
-        notifyObservers();
-    }
-    
-    
-    public String toString()
-    {
-        String r = "";
-        for (List<Case> row : board) {
-            r = row.stream().map((c) -> c + " ").reduce(r, String::concat);
-            r += "\n";
-        }
-        return r;
     }
 
 }

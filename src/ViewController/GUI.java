@@ -6,6 +6,7 @@
 package ViewController;
 
 import Model.Board;
+import Model.Board2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -66,7 +67,7 @@ public class GUI extends Application implements Observer {
         BorderPane border = new BorderPane();
         HBox hbox = this.buildTopBar();
         
-        model = new Board(3, 3, 2);
+        model = new Board2D(3, 3, 2);
         imageViews = new ArrayList<>();
         for (int i = 0; i < model.getBoard().size(); i++) {
             imageViews.add(new ArrayList<>());
