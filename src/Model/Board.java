@@ -22,9 +22,20 @@ public class Board extends Observable {
 
     private List<List<Case>> board;
     private final int nbBomb; //Number of bomb
-    private boolean lost;
-    private boolean win;
     private int nbFlag;
+    
+    /**
+     * Represents the state of the game
+     */
+    private GameState state;
+
+    public GameState getState() {
+        return state;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
+    }
     
     public List<List<Case>> getBoard() {
         return board;
@@ -32,22 +43,6 @@ public class Board extends Observable {
 
     public void setBoard(List<List<Case>> board) {
         this.board = board;
-    }
-
-    public boolean isLost() {
-        return lost;
-    }
-
-    public void setLost(boolean lost) {
-        this.lost = lost;
-    }
-
-    public boolean isWin() {
-        return win;
-    }
-
-    public void setWin(boolean win) {
-        this.win = win;
     }
 
     public int getNbFlag() {
@@ -70,8 +65,7 @@ public class Board extends Observable {
     public Board(int row, int col, int bomb) {
         this.nbBomb = bomb;
         this.nbFlag = 0;
-        this.setLost(false);
-        this.setWin(false);
+        this.state = GameState.RUNNING;
         this.board = new ArrayList<>();
 
         for (int i = 0; i < row; i++) {
@@ -81,9 +75,12 @@ public class Board extends Observable {
             }
         }
         generateBomb();
-        addNeignbours();
+        addNeighbours();
     }
     
+    /**
+     * Reset the board to the initial state (empty, ready to play)
+     */
     public void resetBoard()
     {
         for (List<Case> list : board) {
@@ -92,14 +89,16 @@ public class Board extends Observable {
             }
         }
         this.nbFlag = 0;
-        this.setLost(false);
-        this.setWin(false);
+        this.state = GameState.RUNNING;
         generateBomb();
-        addNeignbours();
+        addNeighbours();
         this.update();
     }
 
-    public void addNeignbours() {
+    /**
+     * Set the neighbours for every cases
+     */
+    public void addNeighbours() {
         for (int row = 0; row < this.getBoard().size(); row++) {
             for (int col = 0; col < this.getBoard().get(row).size(); col++) {
                 if (row < this.getBoard().size() - 1) {
@@ -134,8 +133,8 @@ public class Board extends Observable {
      * Set a flag on the grid according to the coordinates entered in the
      * arguments
      *
-     * @param row
-     * @param col
+     * @param row the row id of the case clicked
+     * @param col the col id of the case clicked
      */
     public void rightClick(int row, int col) {
 
@@ -163,13 +162,18 @@ public class Board extends Observable {
                 return;
         }
         if (gameWon()) {
-            this.setWin(true);
+            this.state = GameState.WON;
             this.manageWin();
         }
         System.out.println(nbFlag);
         this.update();
     }
 
+    /**
+     * Manage the left click on a case
+     * @param row : the row id of the case clicked
+     * @param col : the col id of the case clicked
+     */
     public void leftClick(int row, int col) {
 
         Case c = this.getCase(row, col);
@@ -180,7 +184,7 @@ public class Board extends Observable {
             case EMPTY:
                 return; // Do Nothing
             case TRAPPED:
-                setLost(true);
+                this.state = GameState.LOST;
                 c.setState(CaseState.TRIGGERED);
                 this.manageDefeat();
                 break;
@@ -190,16 +194,13 @@ public class Board extends Observable {
                     c.discoverNeighbours();
                 }
                 if (this.gameWon()) {
-                    this.setWin(true);
+                    this.state = GameState.WON;
                     manageWin();
                 }
                 break;
             default:
                 break;
         }
-        
-        
-        
         this.update();
     }
 
@@ -234,24 +235,33 @@ public class Board extends Observable {
         return nb;
     }
 
+    /**
+     * Test if the game is finished
+     * @return false if the game is still running, true else
+     */
     public boolean gameFinished() {
-        return (this.isWin() || this.isLost());
+        return (! (this.state == GameState.RUNNING));
     }
 
+    /**
+     * Manage the defeat
+     */
     private void manageDefeat() {
-        if (!this.isLost() || this.isWin()) {
-            return;
-        }
-        discoverAll();
+        if (this.state == GameState.LOST)
+            discoverAll();
     }
 
+    /**
+     * Manage the victory
+     */
     private void manageWin() {
-        if (!this.isWin() || this.isLost()) {
-            return;
-        }
-        this.discoverAll();
+        if (this.state == GameState.WON)
+            this.discoverAll(); 
     }
 
+    /**
+     * Discover all the cases
+     */
     public void discoverAll() {
         for (int row = 0; row < this.getBoard().size(); row++) {
             for (int col = 0; col < this.getBoard().get(row).size(); col++) {
@@ -260,6 +270,10 @@ public class Board extends Observable {
         }
     }
 
+    /**
+     * Return the number of cases not visible
+     * @return 
+     */
     public int nbAllUndiscovered() {
         int counter = 0;
         for (int row = 0; row < this.getBoard().size(); row++) {
@@ -277,12 +291,9 @@ public class Board extends Observable {
      */
     public void generateBomb() {
         Random r = new Random();
-
-        int i_random;
-        int j_random;
+        int i_random, j_random;
         for (int i = 0; i < nbBomb; i++) {
             do {
-                System.out.println(this.board.size());
                 i_random = r.nextInt(this.board.size());
                 j_random = r.nextInt(this.board.get(i_random).size());
             } while (board.get(i_random).get(j_random).isTrap());

@@ -24,7 +24,7 @@ public class ImageRefresher implements Runnable
     private final Button smiley;
 
     private final Board model;
-
+    
     public ImageRefresher(List<List<ImageView>> images, Board model, Button smiley) {
         this.images = images;
         this.model = model;
@@ -34,28 +34,35 @@ public class ImageRefresher implements Runnable
     @Override
     public void run()
     {
-        if (model.isWin())
+        Image image;
+        ImageView imageView;
+        switch (model.getState())
         {
-            Image image = new Image(getClass().getResource("/images/Win.png").toExternalForm());
-            ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(25);
-            imageView.setFitHeight(25);
-            smiley.setGraphic(imageView);
-        } else if (model.isLost())
-        {
-            Image image = new Image(getClass().getResource("/images/Cry.png").toExternalForm());
-            ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(25);
-            imageView.setFitHeight(25);
-            smiley.setGraphic(imageView);
-        } else
-        {
-            Image image = new Image(getClass().getResource("/images/Smile.png").toExternalForm());
-            ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(25);
-            imageView.setFitHeight(25);
-            smiley.setGraphic(imageView);
+            case WON :
+                image = new Image(getClass().getResource("/images/Win.png").toExternalForm());
+                imageView = new ImageView(image);
+                imageView.setFitWidth(25);
+                imageView.setFitHeight(25);
+                smiley.setGraphic(imageView);
+                break;
+            case LOST : 
+                image = new Image(getClass().getResource("/images/Cry.png").toExternalForm());
+                imageView = new ImageView(image);
+                imageView.setFitWidth(25);
+                imageView.setFitHeight(25);
+                smiley.setGraphic(imageView);
+                break;
+            case RUNNING :
+                image = new Image(getClass().getResource("/images/Smile.png").toExternalForm());
+                imageView = new ImageView(image);
+                imageView.setFitWidth(25);
+                imageView.setFitHeight(25);
+                smiley.setGraphic(imageView);
+                break;
+            default :
+                System.out.println("Error with Game State");
         }
+        
         for (int i = 0; i < model.getBoard().size(); i ++)
         {
             for (int j = 0; j < model.getBoard().get(i).size(); j ++)
