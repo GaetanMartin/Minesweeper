@@ -110,36 +110,7 @@ public abstract class Board extends Observable {
     /**
      * Set the neighbours for every cases
      */
-    public void setUpNeighbours() {
-        for (int row = 0; row < this.getBoard().size(); row++) {
-            for (int col = 0; col < this.getBoard().get(row).size(); col++) {
-                if (row < this.getBoard().size() - 1) {
-                    board.get(row).get(col).addNeighbour(board.get(row + 1).get(col));
-                    if (col < this.getBoard().get(row).size() - 1) {
-                        board.get(row).get(col).addNeighbour(board.get(row + 1).get(col + 1));
-                    }
-                    if (col > 0) {
-                        board.get(row).get(col).addNeighbour(board.get(row + 1).get(col - 1));
-                    }
-                }
-                if (row > 0) {
-                    board.get(row).get(col).addNeighbour(board.get(row - 1).get(col));
-                    if (col < this.getBoard().get(row).size() - 1) {
-                        board.get(row).get(col).addNeighbour(board.get(row - 1).get(col + 1));
-                    }
-                    if (col > 0) {
-                        board.get(row).get(col).addNeighbour(board.get(row - 1).get(col - 1));
-                    }
-                }
-                if (col < this.getBoard().get(row).size() - 1) {
-                    board.get(row).get(col).addNeighbour(board.get(row).get(col + 1));
-                }
-                if (col > 0) {
-                    board.get(row).get(col).addNeighbour(board.get(row).get(col - 1));
-                }
-            }
-        }
-    }
+    public abstract void setUpNeighbours();
 
     /**
      * Set a flag on the grid according to the coordinates entered in the
