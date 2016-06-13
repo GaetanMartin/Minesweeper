@@ -23,18 +23,16 @@ public abstract class Board extends Observable {
     protected List<List<Case>> board;
     protected int nbBomb; //Number of bomb
     protected int nbFlag;
-    
+
     /**
      * Represents the state of the game
      */
     protected GameState state;
 
-    
     public GameState getState() {
         return state;
     }
-    
-    
+
     public List<List<Case>> getBoard() {
         return board;
     }
@@ -56,12 +54,12 @@ public abstract class Board extends Observable {
         this.state = GameState.RUNNING;
         this.board = createBoard(row, col);
         generateBomb(board);
-        addNeighbours();
+        setUpNeighbours();
     }
-    
+
     /**
      * Create the board
-     * 
+     *
      * @param row
      * @param col
      * @return
@@ -76,13 +74,11 @@ public abstract class Board extends Observable {
         }
         return grid;
     }
-    
+
     /**
      * Reset the board to the initial state (empty, ready to play)
      */
-    
-    public void resetBoard()
-    {
+    public void resetBoard() {
         for (List<Case> list : board) {
             for (Case c : list) {
                 c.reset();
@@ -91,31 +87,30 @@ public abstract class Board extends Observable {
         this.nbFlag = 0;
         this.state = GameState.RUNNING;
         generateBomb(board);
-        addNeighbours();
+        setUpNeighbours();
         this.update();
     }
-    
+
     /**
      * Methode to redine the board properties when changing the difficulty level
-     * 
+     *
      * @param row New number of row
-     * @param col New number of column 
+     * @param col New number of column
      * @param nbomb New nulber of bomb
      */
-    public void changeLevel( int row, int col, int nbomb)
-    {
+    public void changeLevel(int row, int col, int nbomb) {
         this.nbBomb = nbomb;
         this.nbFlag = 0;
         this.state = GameState.RUNNING;
         this.board = createBoard(row, col);
         generateBomb(board);
-        addNeighbours();
+        setUpNeighbours();
     }
 
     /**
      * Set the neighbours for every cases
-     */    
-    public void addNeighbours() {
+     */
+    public void setUpNeighbours() {
         for (int row = 0; row < this.getBoard().size(); row++) {
             for (int col = 0; col < this.getBoard().get(row).size(); col++) {
                 if (row < this.getBoard().size() - 1) {
@@ -153,7 +148,6 @@ public abstract class Board extends Observable {
      * @param row the row id of the case clicked
      * @param col the col id of the case clicked
      */
-    
     public void rightClick(int row, int col) {
 
         if (gameFinished()) {
@@ -187,10 +181,10 @@ public abstract class Board extends Observable {
 
     /**
      * Manage the left click on a case
+     *
      * @param row : the row id of the case clicked
      * @param col : the col id of the case clicked
      */
-    
     public void leftClick(int row, int col) {
 
         Case c = this.getCase(row, col);
@@ -220,7 +214,6 @@ public abstract class Board extends Observable {
         }
         this.update();
     }
-
 
     /**
      * Game won if all bombs are flagged or if every case undiscovered remaining
@@ -254,27 +247,29 @@ public abstract class Board extends Observable {
 
     /**
      * Test if the game is finished
+     *
      * @return false if the game is still running, true else
      */
-    
     public boolean gameFinished() {
-        return (! (this.state == GameState.RUNNING));
+        return (!(this.state == GameState.RUNNING));
     }
 
     /**
      * Manage the defeat
      */
     protected void manageDefeat() {
-        if (this.state == GameState.LOST)
+        if (this.state == GameState.LOST) {
             discoverAll();
+        }
     }
 
     /**
      * Manage the victory
      */
     protected void manageWin() {
-        if (this.state == GameState.WON)
-            this.discoverAll(); 
+        if (this.state == GameState.WON) {
+            this.discoverAll();
+        }
     }
 
     /**
@@ -290,7 +285,8 @@ public abstract class Board extends Observable {
 
     /**
      * Return the number of cases not visible
-     * @return 
+     *
+     * @return
      */
     protected int nbAllUndiscovered() {
         int counter = 0;
@@ -306,6 +302,7 @@ public abstract class Board extends Observable {
 
     /**
      * Method to generate randomly a list of bombs and put it on the grid
+     *
      * @param board
      */
     protected void generateBomb(List<List<Case>> board) {
@@ -328,7 +325,6 @@ public abstract class Board extends Observable {
      * @param j
      * @return The case according to the coordinates
      */
-    
     public Case getCase(int i, int j) {
         return this.board.get(i).get(j);
     }
@@ -341,29 +337,24 @@ public abstract class Board extends Observable {
         setChanged();
         notifyObservers();
     }
-    
+
     /**
      * Methode to return the total number of case
-     * 
-     * @return 
+     *
+     * @return
      */
-    public int getNbCase()
-    {
-       int cmpt = 0;
-        for(int i = 0; i< this.board.size();i++)
-        {
-            for(int j= 0; j < this.board.get(i).size(); j++)
-            {
+    public int getNbCase() {
+        int cmpt = 0;
+        for (int i = 0; i < this.board.size(); i++) {
+            for (int j = 0; j < this.board.get(i).size(); j++) {
                 cmpt++;
             }
         }
         return cmpt;
     }
-    
-    
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         String r = "";
         for (List<Case> row : board) {
             r = row.stream().map((c) -> c + " ").reduce(r, String::concat);

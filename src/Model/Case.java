@@ -5,15 +5,13 @@
  */
 package Model;
 
-
 import java.util.LinkedList;
 
 /**
  * Class case representing a case in the model Can be a trap or not, displayed
  * or not yet, or set as flag
  */
-public class Case
-{
+public class Case {
 
     private boolean flag;
     private boolean trap;
@@ -22,13 +20,11 @@ public class Case
     private int nbBomb; //Number of bonbs neighbour to current case
     private CaseState state;
 
-    public boolean isFlag()
-    {
+    public boolean isFlag() {
         return flag;
     }
 
-    public void setFlag(boolean flag)
-    {
+    public void setFlag(boolean flag) {
         if (this.flag = flag) {
             this.setState(CaseState.FLAGGED);
         } else {
@@ -36,59 +32,49 @@ public class Case
         }
     }
 
-    public boolean isTrap()
-    {
+    public boolean isTrap() {
         return trap;
     }
 
-    public void setTrap(boolean trap)
-    {
+    public void setTrap(boolean trap) {
         this.trap = trap;
         this.setState(CaseState.TRAPPED);
     }
 
-    public boolean isVisible()
-    {
+    public boolean isVisible() {
         return visible;
     }
 
-    public void setVisible(boolean visible)
-    {
+    public void setVisible(boolean visible) {
         this.visible = visible;
         this.setState();
     }
 
-    public LinkedList getNeighbours()
-    {
+    public LinkedList getNeighbours() {
         return neighbours;
     }
 
-    public void setNeighbours(LinkedList neighbours)
-    {
+    public void setNeighbours(LinkedList neighbours) {
         this.neighbours = neighbours;
     }
 
-    public void addNeighbour(Case c)
-    {
+    public void addNeighbour(Case c) {
         neighbours.add(c);
     }
 
-    public int getNbBomb()
-    {
+    public int getNbBomb() {
         return nbBomb;
     }
 
-    public Case()
-    {
+    public Case() {
         this.setFlag(false);
         this.setTrap(false);
         this.neighbours = new LinkedList<Case>();
         this.setVisible(false);
         this.setState();
     }
-    
-    public void reset()
-    {
+
+    public void reset() {
         this.setFlag(false);
         this.setTrap(false);
         this.neighbours = new LinkedList<>();
@@ -96,12 +82,11 @@ public class Case
         this.setState();
     }
 
-    public void setFlag()
-    {
-        this.setState((this.flag = ! this.flag) ? CaseState.FLAGGED : CaseState.UNDISCOVERED);
-        
+    public void setFlag() {
+        this.setState((this.flag = !this.flag) ? CaseState.FLAGGED : CaseState.UNDISCOVERED);
+
     }
-    
+
     /**
      * @return the state
      */
@@ -115,34 +100,31 @@ public class Case
     public void setState(CaseState state) {
         this.state = state;
     }
-    
-    public void setState()
-    {
-        if (this.state == CaseState.TRIGGERED) return;
-        
-        if (! isVisible())
+
+    public void setState() {
+        if (this.state == CaseState.TRIGGERED) {
+            return;
+        }
+
+        if (!isVisible()) {
             setState(CaseState.UNDISCOVERED);
-        else if (flag)
+        } else if (flag) {
             setState(CaseState.FLAGGED);
-        else if (isTrap() && isVisible())
+        } else if (isTrap() && isVisible()) {
             setState(CaseState.TRAPPED);
-        else if (isVisible() && nbBomb == 0)
+        } else if (isVisible() && nbBomb == 0) {
             setState(CaseState.EMPTY);
-        else
+        } else {
             setState(CaseState.DISCOVERED);
+        }
     }
 
-    public void discoverNeighbours()
-    {
-        if (!isTrap()) 
-        {
-            for (Case c : this.neighbours) 
-            {
-                if (!c.isVisible()&& !c.flag)
-                {
+    public void discoverNeighbours() {
+        if (!isTrap()) {
+            for (Case c : this.neighbours) {
+                if (!c.isVisible() && !c.flag) {
                     c.discover();
-                    if (c.nbBomb == 0) 
-                    {
+                    if (c.nbBomb == 0) {
                         c.discoverNeighbours();
                     }
                 }
@@ -150,8 +132,7 @@ public class Case
         }
     }
 
-    public void discover()
-    {
+    public void discover() {
         if (!isVisible()) {
             this.setVisible(true);
             nbBomb = computeNbBomb();
@@ -159,8 +140,7 @@ public class Case
         this.setState();
     }
 
-    public int computeNbBomb()
-    {
+    public int computeNbBomb() {
         nbBomb = 0;
         for (Case c : this.neighbours) {
             if (c.isTrap()) {
@@ -169,7 +149,7 @@ public class Case
         }
         return nbBomb;
     }
-    
+
     @Override
     public String toString() {
         String r = "";

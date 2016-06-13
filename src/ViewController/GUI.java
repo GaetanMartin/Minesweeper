@@ -96,7 +96,8 @@ public class GUI extends Application implements Observer {
 
         BorderPane b = buildTopMenuPane();
 
-        model = new Board2D(row, col, 15);
+        model = new BoardPyramid(row, 15);
+        // model = new Board2D(row, col, 15);
         model.addObserver(this);
 
         caseNodes = new ArrayList<>();
@@ -244,7 +245,7 @@ public class GUI extends Application implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Platform.runLater(imageRefresher);
     }
 
 }
