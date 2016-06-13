@@ -111,7 +111,7 @@ public class BoardPyramid extends Board {
     }
     
     private Case getUp(int row, int col) {
-        if (getBoard().isEmpty() || row == 0)
+        if (getBoard().isEmpty() || row == 0 || col >= getBoard().get(row).size() - 1)
             return null;
         return getBoard().get(row - 1).get(col + 1);
     }

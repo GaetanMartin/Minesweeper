@@ -29,8 +29,11 @@ public class Case
 
     public void setFlag(boolean flag)
     {
-        this.flag = flag;
-        this.setState(flag ? CaseState.FLAGGED : CaseState.UNDISCOVERED);
+        if (this.flag = flag) {
+            this.setState(CaseState.FLAGGED);
+        } else {
+            this.setState();
+        }
     }
 
     public boolean isTrap()
