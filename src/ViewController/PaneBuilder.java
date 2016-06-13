@@ -6,7 +6,6 @@
 package ViewController;
 
 import Model.Board;
-import Model.BoardPyramid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -15,14 +14,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Polygon;
@@ -99,8 +93,8 @@ public class PaneBuilder {
      * @param executor
      * @return
      */
-    public static BorderPane createBorderPane(Board model, ExecutorService executor) {
-        return buildBorderPane(model, executor);
+    public static BorderPane createBorderPane(Board model, ExecutorService executor, Double sizeSideTriangle) {
+        return buildBorderPane(model, executor, sizeSideTriangle);
     }
 
     /**
@@ -109,10 +103,10 @@ public class PaneBuilder {
      * @param model
      * @return the border pane built
      */
-    private static BorderPane buildBorderPane(Board model, ExecutorService executor) {
+    private static BorderPane buildBorderPane(Board model, ExecutorService executor, Double sizeSideTriangle) {
         BorderPane borderPane = new BorderPane();
 
-        List<List<Polygon>> pyramid = createPyramid(model.getBoard().size());
+        List<List<Polygon>> pyramid = createPyramid(model.getBoard().size(), sizeSideTriangle);
         for (int i = 0; i < pyramid.size(); i++) {
             for (int j = 0; j < pyramid.get(i).size(); j++) {
                 Polygon p = pyramid.get(i).get(j);
@@ -125,9 +119,9 @@ public class PaneBuilder {
         return borderPane;
     }
 
-    private static List<List<Polygon>> createPyramid(int nbShapesBase) {
+    private static List<List<Polygon>> createPyramid(int nbShapesBase, Double sizeSideTriangle) {
         Double y, x = y = 0.0;
-        Double sideX = 50.0;
+        Double sideX = sizeSideTriangle;
         Double sideY = sideX;// Math.cos(Math.PI / 6) * sideX;
         List<List<Polygon>> list = new ArrayList<>();
         for (int i = nbShapesBase; i > 0; i--) {

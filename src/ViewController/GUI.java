@@ -44,7 +44,7 @@ public class GUI extends Application implements Observer {
         return caseNodes;
     }
     private Button smiley;
-    private static final int SQUARESIZE = 30;
+    private static final double SQUARESIZE = 30;
     private static ImageRefresher imageRefresher;
 
     /**
@@ -76,7 +76,7 @@ public class GUI extends Application implements Observer {
         BorderPane borderPane = new BorderPane();
         HBox hbox = this.buildTopBar();
 
-        model = new Board2D(10, 10, 15);
+        model = new BoardPyramid(10, 10, 15);
         model.addObserver(this);
         
         caseNodes = new ArrayList<>();
@@ -88,10 +88,11 @@ public class GUI extends Application implements Observer {
         
         Pane p;
         if (model instanceof BoardPyramid)
-            p = PaneBuilder.createBorderPane(model, executor);
+            p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
         else
             p = PaneBuilder.createGridPane(model, executor);
         
+        p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
         borderPane.setCenter(p);
         borderPane.setTop(hbox);
         Scene scene = new Scene(borderPane, Color.WHITE);
