@@ -20,8 +20,8 @@ import java.util.Random;
  */
 public abstract class Board extends Observable {
 
-    protected final List<List<Case>> board;
-    protected final int nbBomb; //Number of bomb
+    protected List<List<Case>> board;
+    protected int nbBomb; //Number of bomb
     protected int nbFlag;
     
     /**
@@ -93,6 +93,23 @@ public abstract class Board extends Observable {
         generateBomb(board);
         addNeighbours();
         this.update();
+    }
+    
+    /**
+     * Methode to redine the board properties when changing the difficulty level
+     * 
+     * @param row New number of row
+     * @param col New number of column 
+     * @param nbomb New nulber of bomb
+     */
+    public void changeLevel( int row, int col, int nbomb)
+    {
+        this.nbBomb = nbomb;
+        this.nbFlag = 0;
+        this.state = GameState.RUNNING;
+        this.board = createBoard(row, col);
+        generateBomb(board);
+        addNeighbours();
     }
 
     /**
@@ -321,13 +338,32 @@ public abstract class Board extends Observable {
     /**
      * Ask the view to update the GUI content
      */
-    protected void update() {
+    public void update() {
         // Notify the view to update
         setChanged();
         notifyObservers();
     }
     
+    /**
+     * Methode to return the total number of case
+     * 
+     * @return 
+     */
+    public int getNbCase()
+    {
+       int cmpt = 0;
+        for(int i = 0; i< this.board.size();i++)
+        {
+            for(int j= 0; j < this.board.get(i).size(); j++)
+            {
+                cmpt++;
+            }
+        }
+        return cmpt;
+    }
     
+    
+    @Override
     public String toString()
     {
         String r = "";
