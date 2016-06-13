@@ -119,12 +119,12 @@ public class PaneBuilder {
         return borderPane;
     }
 
-    private static List<List<Polygon>> createPyramid(int nbShapesBase, Double sizeSideTriangle) {
+    private static List<List<Polygon>> createPyramid(int sideSize, Double sizeSideTriangle) {
         Double y, x = y = 0.0;
         Double sideX = sizeSideTriangle;
         Double sideY = sideX;// Math.cos(Math.PI / 6) * sideX;
         List<List<Polygon>> list = new ArrayList<>();
-        for (int i = nbShapesBase; i > 0; i--) {
+        for (int i = sideSize; i > 0; i--) {
             list.add(createRowPolygons(x, y, sideX, sideY, i));
             x += sideX / 2;
             y += sideY;

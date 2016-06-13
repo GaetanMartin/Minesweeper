@@ -76,7 +76,7 @@ public class GUI extends Application implements Observer {
         BorderPane borderPane = new BorderPane();
         HBox hbox = this.buildTopBar();
 
-        model = new BoardPyramid(10, 10, 15);
+        model = new Board2D(10, 10, 15);
         model.addObserver(this);
         
         caseNodes = new ArrayList<>();

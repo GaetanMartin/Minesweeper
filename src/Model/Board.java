@@ -146,8 +146,6 @@ public abstract class Board extends Observable {
 
         switch (c.getState()) {
             case FLAGGED:
-                // Remove flag
-                // TODO Question Mark
                 c.setFlag(false);
                 this.nbFlag--;
                 break;
