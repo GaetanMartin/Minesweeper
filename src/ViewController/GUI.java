@@ -111,18 +111,14 @@ public class GUI extends Application implements Observer {
         } else {
             p = PaneBuilder.createGridPane(model, executor);
         }
-        p.setMinSize(model.getBoard().size()*SQUARESIZE, model.getBoard().size()*SQUARESIZE);
+        p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
         borderPane.setTop(b);
         borderPane.setCenter(p);
         Scene scene = new Scene(borderPane, Color.WHITE);
         return scene;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        System.out.println("update");
-        Platform.runLater(imageRefresher);
-    }
+
 
     public HBox buildTopBar() {
         HBox hbox = new HBox();
@@ -244,6 +240,11 @@ public class GUI extends Application implements Observer {
         bp.setTop(menuBar);
         bp.setCenter(hbox);
         return bp;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
