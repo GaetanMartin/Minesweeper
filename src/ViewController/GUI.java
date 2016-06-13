@@ -70,22 +70,18 @@ public class GUI extends Application implements Observer {
     public static void main(String[] args) {
         launch(args);
     }
-
     @Override
     public void start(Stage primaryStage) {
 
         BorderPane borderPane = new BorderPane();
         HBox hbox = this.buildTopBar();
 
-        model = new BoardPyramid(10, 10, 15);
+        model = new Board2D(10, 10, 15);
         model.addObserver(this);
         
         caseNodes = new ArrayList<>();
         for (int i = 0; i < model.getBoard().size(); i++) {
             caseNodes.add(new ArrayList<>());
-            for (int j = 0; j < model.getBoard().get(i).size(); j++) {
-                // caseNodes.add("");
-            }
         }
         
         imageRefresher = new ImageRefresher(caseNodes, model, smiley);

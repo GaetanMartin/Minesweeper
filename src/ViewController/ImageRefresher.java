@@ -36,7 +36,7 @@ public class ImageRefresher implements Runnable {
 
     @Override
     public void run() {
-        Image image = this.buildImage("/images/Square.png");;
+        Image image;
         setSmiley(smiley, model.getState());
         for (int i = 0; i < images.size(); i++) {
             for (int j = 0; j < images.get(i).size(); j++) {
