@@ -14,13 +14,24 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.RadioMenuItemBuilder;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -31,11 +42,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.Scene;
-import javafx.scene.control.Slider;
 import javafx.stage.Stage;
 
 /**
@@ -53,6 +59,7 @@ public class GUI extends Application implements Observer {
     private static final double SQUARESIZE = 20;
     private static ImageRefresher imageRefresher;
     private Stage primaryStage;
+    private Scene scene;
     private Pane p;
     BorderPane borderPane;
 
@@ -83,7 +90,7 @@ public class GUI extends Application implements Observer {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        Scene scene = initGame(9, 9);
+        scene = initGame(16, 16, 0);
         this.primaryStage.sizeToScene();
         this.primaryStage.setTitle("Minesweeper");
         this.primaryStage.setScene(scene);
@@ -91,12 +98,17 @@ public class GUI extends Application implements Observer {
 
     }
 
-    private Scene initGame(int row, int col) {
+    private Scene initGame(int row, int col, int gameType) {
         borderPane = new BorderPane();
 
         BorderPane b = buildTopMenuPane();
 
-        model = new BoardPyramid(row, 15);
+        if (gameType == 0) {
+            model = new Board2D(row, col, 34);
+        } else if (gameType == 1) {
+            model = new BoardPyramid(row, 34);
+        }
+
         // model = new Board2D(row, col, 15);
         model.addObserver(this);
 
@@ -109,17 +121,17 @@ public class GUI extends Application implements Observer {
 
         if (model instanceof BoardPyramid) {
             p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
+            p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
         } else {
             p = PaneBuilder.createGridPane(model, executor);
+
         }
-        p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
+
         borderPane.setTop(b);
         borderPane.setCenter(p);
         Scene scene = new Scene(borderPane, Color.WHITE);
         return scene;
     }
-
-
 
     public HBox buildTopBar() {
         HBox hbox = new HBox();
@@ -179,6 +191,93 @@ public class GUI extends Application implements Observer {
         MenuBar menuBar = new MenuBar();
 
         Menu menu = new Menu("Difficulté");
+        Slider difficultySilder = difficultySilder();
+
+        CustomMenuItem customMenuItem = new CustomMenuItem(difficultySilder);
+        customMenuItem.setHideOnClick(false);
+
+        menu.getItems().add(customMenuItem);
+
+        Menu menuMode = new Menu("Mode");
+        ToggleGroup tGroup = new ToggleGroup();
+        RadioMenuItem square = RadioMenuItemBuilder.create()
+                .toggleGroup(tGroup)
+                .text("Carré")
+                .selected(true)
+                .build();
+        RadioMenuItem triangle = RadioMenuItemBuilder.create()
+                .toggleGroup(tGroup)
+                .text("Triangle")
+                .build();
+        
+         final Stage ps = this.primaryStage;
+         final Observer obs = this;
+        square.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                model = new Board2D(9, 9,15);
+                model.addObserver(obs);
+                caseNodes = new ArrayList<>();
+                for (int i = 0; i < model.getBoard().size(); i++) {
+                    caseNodes.add(new ArrayList<>());
+                }
+
+                imageRefresher = new ImageRefresher(caseNodes, model, smiley);
+
+                if (model instanceof BoardPyramid) {
+                    p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
+                    p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
+                } else {
+                    p = PaneBuilder.createGridPane(model, executor);
+
+                }
+
+                borderPane.setCenter(p);
+                ps.sizeToScene();
+            }
+        });
+        
+        
+       
+        triangle.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                model = new BoardPyramid(16, 34);
+                model.addObserver(obs);
+                caseNodes = new ArrayList<>();
+                for (int i = 0; i < model.getBoard().size(); i++) {
+                    caseNodes.add(new ArrayList<>());
+                }
+
+                imageRefresher = new ImageRefresher(caseNodes, model, smiley);
+
+                if (model instanceof BoardPyramid) {
+                    p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
+                    p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
+                } else {
+                    p = PaneBuilder.createGridPane(model, executor);
+
+                }
+
+                borderPane.setCenter(p);
+                ps.sizeToScene();
+            }
+        });
+
+        menuMode.getItems().add(square);
+        menuMode.getItems().add(triangle);
+
+        menuBar.getMenus().addAll(menu, menuMode);
+
+        HBox hbox = this.buildTopBar();
+        bp.setTop(hbox);
+
+        bp.setTop(menuBar);
+        bp.setCenter(hbox);
+        return bp;
+    }
+
+    private Slider difficultySilder() {
 
         Slider slider = new Slider();
         slider.setMin(0);
@@ -204,7 +303,7 @@ public class GUI extends Application implements Observer {
                         model.changeLevel(16, 16, 34);
                         break;
                     case 100:
-                        model.changeLevel(30, 16, 100);
+                        model.changeLevel(16, 30, 100);
                         break;
                 }
 
@@ -217,35 +316,24 @@ public class GUI extends Application implements Observer {
 
                 if (model instanceof BoardPyramid) {
                     p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
+                    p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
                 } else {
                     p = PaneBuilder.createGridPane(model, executor);
+
                 }
-                p.setMinSize(model.getBoard().size()*SQUARESIZE, model.getBoard().size()*SQUARESIZE);
-                
+
                 borderPane.setCenter(p);
+                
+                 
                 ps.sizeToScene();
             }
 
         });
-
-        CustomMenuItem customMenuItem = new CustomMenuItem(slider);
-        customMenuItem.setHideOnClick(false);
-
-        menu.getItems().add(customMenuItem);
-
-        menuBar.getMenus().add(menu);
-
-        HBox hbox = this.buildTopBar();
-        bp.setTop(hbox);
-
-        bp.setTop(menuBar);
-        bp.setCenter(hbox);
-        return bp;
+        return slider;
     }
 
     @Override
     public void update(Observable o, Object arg) {
         Platform.runLater(imageRefresher);
     }
-
 }
