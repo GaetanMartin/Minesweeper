@@ -67,10 +67,9 @@ public class GUI extends Application implements Observer
     private static final double SQUARESIZE = 20;
     private static ImageRefresher imageRefresher;
     private Stage primaryStage;
-    private Scene scene;
-    private Pane p;
-    private BorderPane borderPane;
-    private Label timerLabel;
+    private Pane p; //Pane to draw the playing grid
+    private BorderPane borderPane; //The main borderPane
+    private Label timerLabel; //The label for the timer
     /**
      * Max number of threads for the ExecutorService Used to process the model
      */
@@ -101,7 +100,7 @@ public class GUI extends Application implements Observer
     public void start(Stage primaryStage)
     {
         this.primaryStage = primaryStage;
-        scene = initGame(16, 16, 0);
+        Scene scene = initGame(16, 16);
         this.primaryStage.sizeToScene();
         this.primaryStage.setTitle("Minesweeper");
         this.primaryStage.setScene(scene);
@@ -109,7 +108,14 @@ public class GUI extends Application implements Observer
 
     }
 
-    private Scene initGame(int row, int col, int gameType)
+    /**
+     * Initialize the playing grid
+     *
+     * @param row The number of row
+     * @param col The number of column
+     * @return
+     */
+    private Scene initGame(int row, int col)
     {
         borderPane = new BorderPane();
 
@@ -117,13 +123,7 @@ public class GUI extends Application implements Observer
 
         HBox bottombar = this.buildBottomBar();
 
-        if (gameType == 0)
-        {
-            model = new Board2D(row, col, 34);
-        } else if (gameType == 1)
-        {
-            model = new BoardPyramid(row, 34);
-        }
+        model = new Board2D(row, col, 34);
         modelTimer = model.getTimer();
         modelTimer.start();
 
@@ -155,6 +155,11 @@ public class GUI extends Application implements Observer
         return scene;
     }
 
+    /**
+     * Build the top bar with the smiley
+     *
+     * @return
+     */
     public HBox buildTopBar()
     {
         HBox hbox = new HBox();
@@ -171,6 +176,11 @@ public class GUI extends Application implements Observer
         return hbox;
     }
 
+    /**
+     * Build the bottom bar
+     *
+     * @return
+     */
     public HBox buildBottomBar()
     {
         HBox hbox = new HBox();
@@ -232,7 +242,7 @@ public class GUI extends Application implements Observer
     }
 
     /**
-     * Methode to build the top bqt including the menu bar and the smilet bar
+     * Method to build the top bar including the menu bar and the smiley bar
      *
      * @return
      */
@@ -241,6 +251,7 @@ public class GUI extends Application implements Observer
         BorderPane bp = new BorderPane();
         MenuBar menuBar = new MenuBar();
 
+        //------------------------------- Difficulty of grid
         Menu menu = new Menu("Difficulté");
         Slider difficultySilder = difficultySilder();
 
@@ -249,8 +260,9 @@ public class GUI extends Application implements Observer
 
         menu.getItems().add(customMenuItem);
 
+        //------------------------------- Mode of game(Square of Triangle)
         Menu menuMode = new Menu("Mode");
-        ToggleGroup tGroup = new ToggleGroup();
+        ToggleGroup tGroup = new ToggleGroup(); //radio button
         RadioMenuItem square = RadioMenuItemBuilder.create()
                 .toggleGroup(tGroup)
                 .text("Carré")
@@ -261,8 +273,10 @@ public class GUI extends Application implements Observer
                 .text("Triangle")
                 .build();
 
+        //Variable needed for anonymous method
         final Stage ps = this.primaryStage;
         final Observer obs = this;
+        //Click on square mode
         square.setOnAction(new EventHandler<ActionEvent>()
         {
             @Override
@@ -274,6 +288,7 @@ public class GUI extends Application implements Observer
             }
         });
 
+        //Click on triangle mode
         triangle.setOnAction(new EventHandler<ActionEvent>()
         {
             @Override
@@ -298,9 +313,13 @@ public class GUI extends Application implements Observer
         return bp;
     }
 
+    /**
+     * Method to build the slider to choose the difficulty level
+     *
+     * @return
+     */
     private Slider difficultySilder()
     {
-
         Slider slider = new Slider();
         slider.setMin(0);
         slider.setMax(100);
@@ -339,6 +358,12 @@ public class GUI extends Application implements Observer
         return slider;
     }
 
+    /**
+     * Recreate the playing pane and reset the event listener as well as the
+     * image views
+     *
+     * @param stage
+     */
     private void reiinitPane(Stage stage)
     {
         caseNodes = new ArrayList<>();
@@ -378,12 +403,21 @@ public class GUI extends Application implements Observer
                     {
                         model.resetBoard();
                         modelTimer.restart();
-                    }else 
+                    } else
                     {
                         this.timerLabel.setText(this.modelTimer.getValue());
                     }
 
-                    
         });
+    }
+
+    /**
+     * Action to do when closing the game
+     */
+    @Override
+    public void stop()
+    {
+        this.modelTimer.stop();
+        executor.shutdown();
     }
 }

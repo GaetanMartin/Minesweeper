@@ -17,13 +17,21 @@ public class GameTimer extends Observable
 {
 
     private Timer t;
-    private int value;
+    private int value; //Value of counter
 
+    /**
+     * 
+     * @return the value of counter in string 
+     */
     public String getValue()
     {
         return Integer.toString(value);
     }
     
+    /**
+     * 
+     * @return the value of counter in integer
+     */
     public int getValueInt()
     {
         return value;
@@ -35,6 +43,9 @@ public class GameTimer extends Observable
         t = new Timer();
     }
 
+    /**
+     * Method to start the counter
+     */
     public void start()
     {
         this.value = 300;
@@ -44,19 +55,26 @@ public class GameTimer extends Observable
             public void run()
             {
                 value--;
-                 setChanged();
+                // notify the view
+                setChanged();
                 notifyObservers();
-                if(value  == 0)
+                if(value  == 0) // if counter arrives zero
                     stop();
             }
         }, 0, 1000);
     }
 
-    private void stop()
+    /*
+    * Method to stop the counter
+    */
+    public void stop()
     {
         this.t.cancel();
     }
 
+    /**
+     * REstart the counter
+     */
     public void restart()
     {
         stop();
