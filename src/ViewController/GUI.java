@@ -21,10 +21,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.RadioMenuItem;
@@ -42,6 +44,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 /**
@@ -61,8 +65,8 @@ public class GUI extends Application implements Observer {
     private Stage primaryStage;
     private Scene scene;
     private Pane p;
-    BorderPane borderPane;
-
+    private BorderPane borderPane;
+    private Label timerLabel;
     /**
      * Max number of threads for the ExecutorService Used to process the model
      */
@@ -102,6 +106,8 @@ public class GUI extends Application implements Observer {
         borderPane = new BorderPane();
 
         BorderPane b = buildTopMenuPane();
+        
+        HBox bottombar = this.buildBottomBar();
 
         if (gameType == 0) {
             model = new Board2D(row, col, 34);
@@ -129,6 +135,7 @@ public class GUI extends Application implements Observer {
 
         borderPane.setTop(b);
         borderPane.setCenter(p);
+        borderPane.setBottom(bottombar);
         Scene scene = new Scene(borderPane, Color.WHITE);
         return scene;
     }
@@ -147,6 +154,27 @@ public class GUI extends Application implements Observer {
         HBox.setHgrow(stack, Priority.ALWAYS);    // Give stack any extra space
         return hbox;
     }
+    
+    
+    public HBox buildBottomBar() {
+        HBox hbox = new HBox();
+        hbox.setPadding(new Insets(5, 5, 5, 5));
+        hbox.setSpacing(2);
+        hbox.setStyle("-fx-background-color: #336699;");
+
+        this.timerLabel = new Label("ww");
+        timerLabel.setStyle("-fx-border-color: white;");
+        timerLabel.setTextFill(Color.WHITE);
+        timerLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 35));
+        StackPane stack = new StackPane();
+        stack.getChildren().addAll(timerLabel);
+        stack.setAlignment(Pos.CENTER);     // Right-justify nodes in stack
+
+        hbox.getChildren().add(stack);            // Add to HBox from Example 1-2
+        HBox.setHgrow(stack, Priority.ALWAYS);    // Give stack any extra space
+        return hbox;
+    }
+
 
     public static ImageView createImageView() {
         Image image = imageRefresher.buildImage("/images/Square.png");
@@ -217,23 +245,7 @@ public class GUI extends Application implements Observer {
             public void handle(ActionEvent e) {
                 model = new Board2D(9, 9,15);
                 model.addObserver(obs);
-                caseNodes = new ArrayList<>();
-                for (int i = 0; i < model.getBoard().size(); i++) {
-                    caseNodes.add(new ArrayList<>());
-                }
-
-                imageRefresher = new ImageRefresher(caseNodes, model, smiley);
-
-                if (model instanceof BoardPyramid) {
-                    p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
-                    p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
-                } else {
-                    p = PaneBuilder.createGridPane(model, executor);
-
-                }
-
-                borderPane.setCenter(p);
-                ps.sizeToScene();
+                reiinitPane(ps);
             }
         });
         
@@ -244,23 +256,7 @@ public class GUI extends Application implements Observer {
             public void handle(ActionEvent e) {
                 model = new BoardPyramid(16, 34);
                 model.addObserver(obs);
-                caseNodes = new ArrayList<>();
-                for (int i = 0; i < model.getBoard().size(); i++) {
-                    caseNodes.add(new ArrayList<>());
-                }
-
-                imageRefresher = new ImageRefresher(caseNodes, model, smiley);
-
-                if (model instanceof BoardPyramid) {
-                    p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
-                    p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
-                } else {
-                    p = PaneBuilder.createGridPane(model, executor);
-
-                }
-
-                borderPane.setCenter(p);
-                ps.sizeToScene();
+                reiinitPane(ps);
             }
         });
 
@@ -306,8 +302,18 @@ public class GUI extends Application implements Observer {
                         model.changeLevel(16, 30, 100);
                         break;
                 }
+                reiinitPane(ps);
 
-                caseNodes = new ArrayList<>();
+               
+            }
+
+        });
+        return slider;
+    }
+    
+    private void reiinitPane(Stage stage)
+    {
+         caseNodes = new ArrayList<>();
                 for (int i = 0; i < model.getBoard().size(); i++) {
                     caseNodes.add(new ArrayList<>());
                 }
@@ -325,11 +331,7 @@ public class GUI extends Application implements Observer {
                 borderPane.setCenter(p);
                 
                  
-                ps.sizeToScene();
-            }
-
-        });
-        return slider;
+                stage.sizeToScene();
     }
 
     @Override
