@@ -23,6 +23,8 @@ public abstract class Board extends Observable {
     protected List<List<Case>> board;
     protected int nbBomb; //Number of bomb
     protected int nbFlag;
+    private GameTimer timer;
+    private int score;
 
     /**
      * Represents the state of the game
@@ -41,6 +43,16 @@ public abstract class Board extends Observable {
         return nbFlag;
     }
 
+    public GameTimer getTimer()
+    {
+        return timer;
+    }
+
+    public int getScore()
+    {
+        return score;
+    }
+
     /**
      * Constructor
      *
@@ -53,9 +65,12 @@ public abstract class Board extends Observable {
         this.nbFlag = 0;
         this.state = GameState.RUNNING;
         this.board = createBoard(row, col);
+        this.timer = new GameTimer();
+       
         generateBomb(board);
         setUpNeighbours();
     }
+   
 
     /**
      * Create the board
@@ -176,6 +191,7 @@ public abstract class Board extends Observable {
                     c.discoverNeighbours();
                 }
                 if (this.gameWon()) {
+                    this.score = this.getTimer().getValueInt();
                     this.state = GameState.WON;
                     manageWin();
                 }

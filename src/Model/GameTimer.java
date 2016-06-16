@@ -16,21 +16,26 @@ import java.util.TimerTask;
 public class GameTimer extends Observable
 {
 
-    private Timer t = new Timer();
+    private Timer t;
     private int value;
 
     public String getValue()
     {
         return Integer.toString(value);
     }
+    
+    public int getValueInt()
+    {
+        return value;
+    }
 
     public GameTimer()
     {
         this.value = 300;
-        this.start();
+        t = new Timer();
     }
 
-    private void start()
+    public void start()
     {
         this.value = 300;
         this.t.schedule(new TimerTask()
@@ -54,7 +59,7 @@ public class GameTimer extends Observable
 
     public void restart()
     {
-        this.t.cancel();
+        stop();
         t = new Timer();
         start();
     }
