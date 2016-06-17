@@ -70,6 +70,7 @@ public class GameTimer extends Observable
     public void stop()
     {
         this.t.cancel();
+        this.t.purge();
     }
 
     /**
