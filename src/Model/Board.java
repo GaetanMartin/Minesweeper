@@ -43,13 +43,11 @@ public abstract class Board extends Observable {
         return nbFlag;
     }
 
-    public GameTimer getTimer()
-    {
+    public GameTimer getTimer() {
         return timer;
     }
 
-    public int getScore()
-    {
+    public int getScore() {
         return score;
     }
 
@@ -66,11 +64,10 @@ public abstract class Board extends Observable {
         this.state = GameState.RUNNING;
         this.board = createBoard(row, col);
         this.timer = new GameTimer();
-       
+
         generateBomb(board);
         setUpNeighbours();
     }
-   
 
     /**
      * Create the board
@@ -161,7 +158,6 @@ public abstract class Board extends Observable {
             this.state = GameState.WON;
             this.manageWin();
         }
-        System.out.println(nbFlag);
         this.update();
     }
 
@@ -191,7 +187,6 @@ public abstract class Board extends Observable {
                     c.discoverNeighbours();
                 }
                 if (this.gameWon()) {
-                    this.score = this.getTimer().getValueInt();
                     this.state = GameState.WON;
                     manageWin();
                 }
@@ -238,6 +233,7 @@ public abstract class Board extends Observable {
      * @return false if the game is still running, true else
      */
     public boolean gameFinished() {
+
         return (!(this.state == GameState.RUNNING));
     }
 
@@ -254,6 +250,7 @@ public abstract class Board extends Observable {
      * Manage the victory
      */
     protected void manageWin() {
+        this.score = this.getTimer().getValueInt();
         if (this.state == GameState.WON) {
             this.discoverAll();
         }
@@ -303,6 +300,7 @@ public abstract class Board extends Observable {
             System.out.println(i_random + "   " + j_random);
             board.get(i_random).get(j_random).setTrap(true);
         }
+        System.out.println("");
     }
 
     /**

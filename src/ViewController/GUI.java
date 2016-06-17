@@ -52,15 +52,13 @@ import javafx.stage.Stage;
 /**
  * Class GUI used as a ViewController to display the GUI & manage the events
  */
-public class GUI extends Application implements Observer
-{
+public class GUI extends Application implements Observer {
 
     private Board model;
     private GameTimer modelTimer;
     private static List<List<Node>> caseNodes;
 
-    public static List<List<Node>> getCaseNodes()
-    {
+    public static List<List<Node>> getCaseNodes() {
         return caseNodes;
     }
     private Button smiley;
@@ -81,24 +79,21 @@ public class GUI extends Application implements Observer
      */
     private final ExecutorService executor
             = Executors.newFixedThreadPool(NB_THREAD_MAX, (Runnable r)
-                    -> 
-                    {
-                        Thread thread = new Thread(r);
-                        thread.setDaemon(true);
-                        return thread;
+                    -> {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                return thread;
             });
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage)
-    {
+    public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         Scene scene = initGame(16, 16);
         this.primaryStage.sizeToScene();
@@ -115,8 +110,7 @@ public class GUI extends Application implements Observer
      * @param col The number of column
      * @return
      */
-    private Scene initGame(int row, int col)
-    {
+    private Scene initGame(int row, int col) {
         borderPane = new BorderPane();
 
         BorderPane b = buildTopMenuPane();
@@ -125,25 +119,23 @@ public class GUI extends Application implements Observer
 
         model = new Board2D(row, col, 34);
         modelTimer = model.getTimer();
+        TimerObserver to = new TimerObserver(timerLabel, model);
+        modelTimer.addObserver(to);
         modelTimer.start();
 
         model.addObserver(this);
-        modelTimer.addObserver(this);
 
         caseNodes = new ArrayList<>();
-        for (int i = 0; i < model.getBoard().size(); i++)
-        {
+        for (int i = 0; i < model.getBoard().size(); i++) {
             caseNodes.add(new ArrayList<>());
         }
 
         imageRefresher = new ImageRefresher(caseNodes, model, smiley);
 
-        if (model instanceof BoardPyramid)
-        {
+        if (model instanceof BoardPyramid) {
             p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
             p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
-        } else
-        {
+        } else {
             p = PaneBuilder.createGridPane(model, executor);
 
         }
@@ -160,8 +152,7 @@ public class GUI extends Application implements Observer
      *
      * @return
      */
-    public HBox buildTopBar()
-    {
+    public HBox buildTopBar() {
         HBox hbox = new HBox();
         hbox.setPadding(new Insets(5, 5, 5, 5));
         hbox.setSpacing(2);
@@ -181,8 +172,7 @@ public class GUI extends Application implements Observer
      *
      * @return
      */
-    public HBox buildBottomBar()
-    {
+    public HBox buildBottomBar() {
         HBox hbox = new HBox();
         hbox.setPadding(new Insets(5, 5, 5, 5));
         hbox.setSpacing(2);
@@ -201,8 +191,7 @@ public class GUI extends Application implements Observer
         return hbox;
     }
 
-    public static ImageView createImageView()
-    {
+    public static ImageView createImageView() {
         Image image = imageRefresher.buildImage("/images/Square.png");
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(SQUARESIZE);
@@ -217,8 +206,7 @@ public class GUI extends Application implements Observer
      * @param image
      * @return
      */
-    private Button createSmileyButton(Image image)
-    {
+    private Button createSmileyButton(Image image) {
         Button button = new Button();
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(25);
@@ -226,18 +214,15 @@ public class GUI extends Application implements Observer
         button.setGraphic(imageView);
 
         button.setOnMouseClicked((MouseEvent event)
-                -> 
-                {
-                    if (event.getButton() == MouseButton.PRIMARY)
-                    {
+                -> {
+                    if (event.getButton() == MouseButton.PRIMARY) {
                         executor.execute(()
-                                -> 
-                                {
-                                    model.resetBoard();
-                                    modelTimer.restart();
+                                -> {
+                            model.resetBoard();
+                            modelTimer.restart();
                         });
                     }
-        });
+                });
         return button;
     }
 
@@ -246,8 +231,7 @@ public class GUI extends Application implements Observer
      *
      * @return
      */
-    private BorderPane buildTopMenuPane()
-    {
+    private BorderPane buildTopMenuPane() {
         BorderPane bp = new BorderPane();
         MenuBar menuBar = new MenuBar();
 
@@ -277,11 +261,9 @@ public class GUI extends Application implements Observer
         final Stage ps = this.primaryStage;
         final Observer obs = this;
         //Click on square mode
-        square.setOnAction(new EventHandler<ActionEvent>()
-        {
+        square.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent e)
-            {
+            public void handle(ActionEvent e) {
                 model = new Board2D(9, 9, 15);
                 model.addObserver(obs);
                 reiinitPane(ps);
@@ -289,11 +271,9 @@ public class GUI extends Application implements Observer
         });
 
         //Click on triangle mode
-        triangle.setOnAction(new EventHandler<ActionEvent>()
-        {
+        triangle.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent e)
-            {
+            public void handle(ActionEvent e) {
                 model = new BoardPyramid(16, 34);
                 model.addObserver(obs);
                 reiinitPane(ps);
@@ -318,8 +298,7 @@ public class GUI extends Application implements Observer
      *
      * @return
      */
-    private Slider difficultySilder()
-    {
+    private Slider difficultySilder() {
         Slider slider = new Slider();
         slider.setMin(0);
         slider.setMax(100);
@@ -330,24 +309,25 @@ public class GUI extends Application implements Observer
         slider.setMinorTickCount(0);
         slider.setSnapToTicks(true);
         final Stage ps = this.primaryStage;
-        slider.valueProperty().addListener(new ChangeListener()
-        {
+        slider.valueProperty().addListener(new ChangeListener() {
 
             @Override
-            public void changed(ObservableValue ov, Object t, Object t1)
-            {
+            public void changed(ObservableValue ov, Object t, Object t1) {
                 p.getChildren().remove(0, (model.getNbCase()));
                 int level = (int) slider.getValue();
-                switch (level)
-                {
+                switch (level) {
                     case 0:
-                        model.changeLevel(9, 9, 10);
+                        model.changeLevel(9, 9, 3);
                         break;
                     case 50:
                         model.changeLevel(16, 16, 34);
                         break;
                     case 100:
-                        model.changeLevel(16, 30, 100);
+                        if (model instanceof BoardPyramid) {
+                            model.changeLevel(30, 30, 50);
+                        } else {
+                            model.changeLevel(16, 30, 100);
+                        }
                         break;
                 }
                 reiinitPane(ps);
@@ -364,22 +344,18 @@ public class GUI extends Application implements Observer
      *
      * @param stage
      */
-    private void reiinitPane(Stage stage)
-    {
+    private void reiinitPane(Stage stage) {
         caseNodes = new ArrayList<>();
-        for (int i = 0; i < model.getBoard().size(); i++)
-        {
+        for (int i = 0; i < model.getBoard().size(); i++) {
             caseNodes.add(new ArrayList<>());
         }
 
         imageRefresher = new ImageRefresher(caseNodes, model, smiley);
 
-        if (model instanceof BoardPyramid)
-        {
+        if (model instanceof BoardPyramid) {
             p = PaneBuilder.createBorderPane(model, executor, SQUARESIZE);
             p.setMinSize(model.getBoard().size() * SQUARESIZE, model.getBoard().size() * SQUARESIZE);
-        } else
-        {
+        } else {
             p = PaneBuilder.createGridPane(model, executor);
 
         }
@@ -391,32 +367,15 @@ public class GUI extends Application implements Observer
     }
 
     @Override
-    public void update(Observable o, Object arg)
-    {
+    public void update(Observable o, Object arg) {
         Platform.runLater(imageRefresher);
-
-        Platform.runLater(()
-                -> 
-                {
-                    String timerValue = this.modelTimer.getValue();
-                    if (timerValue == "0")
-                    {
-                        model.resetBoard();
-                        modelTimer.restart();
-                    } else
-                    {
-                        this.timerLabel.setText(this.modelTimer.getValue());
-                    }
-
-        });
     }
 
     /**
      * Action to do when closing the game
      */
     @Override
-    public void stop()
-    {
+    public void stop() {
         this.modelTimer.stop();
         executor.shutdown();
     }

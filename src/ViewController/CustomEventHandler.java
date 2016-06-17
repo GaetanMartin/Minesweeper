@@ -32,7 +32,6 @@ public class CustomEventHandler implements EventHandler {
     }
 
     public void handle(MouseEvent event) {
-        System.out.println(i + "  " + j);
         if (model.gameFinished()) {
             System.out.println("Game Finished ! ");
             return;

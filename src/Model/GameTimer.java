@@ -13,32 +13,28 @@ import java.util.TimerTask;
  *
  * @author seljo
  */
-public class GameTimer extends Observable
-{
+public class GameTimer extends Observable {
 
     private Timer t;
     private int value; //Value of counter
 
     /**
-     * 
-     * @return the value of counter in string 
+     *
+     * @return the value of counter in string
      */
-    public String getValue()
-    {
+    public String getValue() {
         return Integer.toString(value);
     }
-    
+
     /**
-     * 
+     *
      * @return the value of counter in integer
      */
-    public int getValueInt()
-    {
+    public int getValueInt() {
         return value;
     }
 
-    public GameTimer()
-    {
+    public GameTimer() {
         this.value = 300;
         t = new Timer();
     }
@@ -46,29 +42,27 @@ public class GameTimer extends Observable
     /**
      * Method to start the counter
      */
-    public void start()
-    {
+    public void start() {
         this.value = 300;
-        this.t.schedule(new TimerTask()
-        {
+        this.t.schedule(new TimerTask() {
             @Override
-            public void run()
-            {
+            public void run() {
                 value--;
                 // notify the view
                 setChanged();
                 notifyObservers();
-                if(value  == 0) // if counter arrives zero
+                if (value == 0) // if counter arrives zero
+                {
                     stop();
+                }
             }
         }, 0, 1000);
     }
 
     /*
-    * Method to stop the counter
-    */
-    public void stop()
-    {
+     * Method to stop the counter
+     */
+    public void stop() {
         this.t.cancel();
         this.t.purge();
     }
@@ -76,8 +70,7 @@ public class GameTimer extends Observable
     /**
      * REstart the counter
      */
-    public void restart()
-    {
+    public void restart() {
         stop();
         t = new Timer();
         start();

@@ -22,8 +22,7 @@ import javafx.scene.shape.Polygon;
  *
  * @author Gaetan
  */
-public class ImageRefresher implements Runnable
-{
+public class ImageRefresher implements Runnable {
 
     private final List<List<Node>> images;
 
@@ -31,25 +30,20 @@ public class ImageRefresher implements Runnable
 
     private final Board model;
 
-    public ImageRefresher(List<List<Node>> images, Board model, Button smiley)
-    {
+    public ImageRefresher(List<List<Node>> images, Board model, Button smiley) {
         this.images = images;
         this.model = model;
         this.smiley = smiley;
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         Image image;
         setSmiley(smiley, model.getState());
-        for (int i = 0; i < images.size(); i++)
-        {
-            for (int j = 0; j < images.get(i).size(); j++)
-            {
+        for (int i = 0; i < images.size(); i++) {
+            for (int j = 0; j < images.get(i).size(); j++) {
                 Node caseImage = this.images.get(i).get(j);
-                switch (model.getCase(i, j).getState())
-                {
+                switch (model.getCase(i, j).getState()) {
                     case UNDISCOVERED:
                         image = this.buildImage("/images/Square.png");
                         // caseImage.setImage(this.buildImage("/images/Square.png"));
@@ -74,10 +68,8 @@ public class ImageRefresher implements Runnable
                     case TRAPPED:
                         if (model.gameFinished()) // Display only if the game is finished
                         {
-                            // caseImage.setImage(this.buildImage("/images/Bomb.png"));
                             image = this.buildImage("/images/Bomb.png");
-                        } else
-                        {
+                        } else {
                             image = this.buildImage("/images/Square.png");
                         }
                         break;
@@ -98,14 +90,11 @@ public class ImageRefresher implements Runnable
      * @param n
      * @param i
      */
-    private void putImage(Node n, Image i)
-    {
-        if (n instanceof Polygon)
-        {
+    private void putImage(Node n, Image i) {
+        if (n instanceof Polygon) {
             Polygon p = (Polygon) n;
             p.setFill(new ImagePattern(i));
-        } else
-        {
+        } else {
             ImageView iv = (ImageView) n;
             iv.setImage(i);
         }
@@ -117,8 +106,7 @@ public class ImageRefresher implements Runnable
      * @param imagePath
      * @return Image, the image desired
      */
-    public Image buildImage(String imagePath)
-    {
+    public Image buildImage(String imagePath) {
         Image image = new Image(getClass().getResource(imagePath).toExternalForm());
         return image;
     }
@@ -129,15 +117,15 @@ public class ImageRefresher implements Runnable
      * @param b
      * @param state
      */
-    private void setSmiley(Button b, GameState state)
-    {
+    private void setSmiley(Button b, GameState state) {
         Image image;
-        switch (state)
-        {
+        switch (state) {
             case LOST:
+                this.model.getTimer().stop();
                 image = new Image(getClass().getResource("/images/Cry.png").toExternalForm());
                 break;
             case WON:
+                this.model.getTimer().stop();
                 image = new Image(getClass().getResource("/images/Win.png").toExternalForm());
                 Alert alert = new Alert(AlertType.INFORMATION);
                 alert.setTitle("Gagner");
