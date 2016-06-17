@@ -75,5 +75,13 @@ public class GameTimer extends Observable {
         t = new Timer();
         start();
     }
+    
+    /**
+     * Return true if the timer reached 0, false else
+     * @return 
+     */
+    public boolean isFinished() {
+        return (this.getValueInt() <= 0);
+    }
 
 }

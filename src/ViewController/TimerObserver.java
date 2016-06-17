@@ -38,8 +38,7 @@ public class TimerObserver implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         Platform.runLater(() -> {
-            String timerValue = this.modelTimer.getValue();
-            if ("0".equals(timerValue)) {
+            if (this.modelTimer.isFinished()) {
                 model.resetBoard();
                 modelTimer.restart();
             } else {
